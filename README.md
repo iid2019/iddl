@@ -52,3 +52,12 @@ $ pip install thop
 ```shell
 $ jupyter-lab --ip 0.0.0.0 --port 35681 --config config.py
 ```
+
+## Experiments data
+
+| model | dataset | epoch | training time |
+|---|---|---|---|
+| mlp | mnist | 10 | 1min 46s |
+| mlp_bibd | mnist | 10 | 1min 44s |
+| mlp | cifar10 | 100 | 23min 25s |
+| mlp_bibd | cifar10 | 100 | 20min 36s |

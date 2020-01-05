@@ -41,6 +41,12 @@ $ conda install matplotlib
 $ conda install -c conda-forge jupyterlab
 ```
 
+### Install thop
+
+```shell
+$ pip install thop
+```
+
 ### Start jupyter-lab
 
 ```shell

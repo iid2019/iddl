@@ -4,35 +4,35 @@ import torch.nn as nn
 import numpy as np
 
 
-# class bibdLinear(Function):
-#     def __init__(self, mask):
-#         super(bibdLinear, self).__init__()
-#         self.mask = mask
+class BibdLinearFunction(Function):
+    # def __init__(self, mask):
+    #     super(BibdLinearFunction, self).__init__()
+    #     self.mask = mask
 
 
-#     @staticmethod
-#     def forward(cxt, input, weight):
-#         cxt.save_for_backward(input, weight)
-#         extendWeights = weight.clone()
-#         extendWeights.mul_(self.mask.data)
-#         output = input.mm(extendWeights.t())
-#         return output
+    @staticmethod
+    def forward(cxt, input, weight, mask):
+        cxt.save_for_backward(input, weight, mask)
+        extendWeight = weight.clone()
+        extendWeight.mul_(mask.data)
+        output = input.mm(extendWeight.t())
+        return output
 
 
-#     @staticmethod
-#     def backward(cxt, grad_output):
-#         input, weight = cxt.saved_tensors
-#         grad_input = grad_weight  = None
-#         extendWeights = weight.clone()
-#         extendWeights.mul_(self.mask.data)
+    @staticmethod
+    def backward(cxt, grad_output):
+        input, weight, mask = cxt.saved_tensors
+        grad_input = grad_weight = grad_bias = None
+        extendWeight = weight.clone()
+        extendWeight.mul_(mask.data)
 
-#         if self.needs_input_grad[0]:
-#             grad_input = grad_output.mm(extendWeights)
-#         if self.needs_input_grad[1]:
-#             grad_weight = grad_output.clone().t().mm(input)
-#             grad_weight.mul_(self.mask.data)
+        if cxt.needs_input_grad[0]:
+            grad_input = grad_output.mm(extendWeight)
+        if cxt.needs_input_grad[1]:
+            grad_weight = grad_output.clone().t().mm(input)
+            grad_weight.mul_(mask.data)
 
-#         return grad_input, grad_weight
+        return grad_input, grad_weight, grad_bias
 
 
 class BibdLinear(torch.nn.Module):
@@ -43,7 +43,7 @@ class BibdLinear(torch.nn.Module):
 
         self.weight = nn.Parameter(data=torch.Tensor(output_features, input_features), requires_grad=True)
 
-        self.mask = torch.from_numpy(generate_bibd_mask(number_of_block).T)
+        self.mask = torch.from_numpy(generate_bibd_mask(number_of_block))
 
         self.mask =  self.mask.cuda()
         nn.init.kaiming_normal_(self.weight.data,mode='fan_in')
@@ -51,11 +51,11 @@ class BibdLinear(torch.nn.Module):
         self.mask.requires_grad = False
 
 
-    def forward(self, x):
-        # return bibdLinear(self.mask)(x, self.weight)
-        copy = self.weight.clone()
-        copy.mul_(self.mask.data)
-        return x.matmul(copy.t())
+    def forward(self, input):
+        return BibdLinearFunction.apply(input, self.weight, self.mask)
+        # copy = self.weight.clone()
+        # copy.mul_(self.mask.data)
+        # return x.matmul(copy.t())
 
 
 def generate_bibd_mask(q):

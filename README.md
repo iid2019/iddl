@@ -28,3 +28,21 @@ For cuda with version `10.x`:
 ```shell
 $ conda install pytorch=1.3.1 torchvision cudatoolkit=10.1 -c pytorch
 ```
+
+### Install matplotlib
+
+```shell
+$ conda install matplotlib
+```
+
+### Install jupyter-lab
+
+```shell
+$ conda install -c conda-forge jupyterlab
+```
+
+### Start jupyter-lab
+
+```shell
+$ jupyter-lab --ip 0.0.0.0 --port 35681 --config config.py
+```

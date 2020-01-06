@@ -13,6 +13,9 @@ import argparse
 
 from models import *
 from utils import progress_bar
+from utils import format_time
+
+import time
 
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
@@ -21,6 +24,7 @@ parser.add_argument('--resume', '-r', action='store_true', help='resume from che
 args = parser.parse_args()
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print('Device: {}'.format(device))
 best_acc = 0  # best test accuracy
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
@@ -63,12 +67,13 @@ net = ResNet18()
 #net = EfficientNetB0()
 net = net.to(device)
 
-'''
-# This may not work on the AI cluster.
-if device == 'cuda':
-    net = torch.nn.DataParallel(net)
-    cudnn.benchmark = True
-'''
+
+# # This may not work on the AI cluster.
+# if device == 'cuda':
+#     print('Running using torch.nn.DataParallel...')
+#     net = torch.nn.DataParallel(net)
+#     cudnn.benchmark = True
+
 
 if args.resume:
     # Load checkpoint.
@@ -82,7 +87,7 @@ if args.resume:
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
 
-# Training
+
 def train(epoch):
     print('\nEpoch: %d' % epoch)
     net.train()
@@ -105,6 +110,7 @@ def train(epoch):
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
+
 def test(epoch):
     global best_acc
     net.eval()
@@ -125,10 +131,10 @@ def test(epoch):
             progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                 % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
-    # Save checkpoint.
-    acc = 100.*correct/total
+    # Save checkpoint
+    acc = 100.0 * correct / total
     if acc > best_acc:
-        print('Saving..')
+        print('Saving...')
         state = {
             'net': net.state_dict(),
             'acc': acc,
@@ -139,7 +145,9 @@ def test(epoch):
         torch.save(state, './checkpoint/ckpt.pth')
         best_acc = acc
 
-
-for epoch in range(start_epoch, start_epoch+200):
+begin_time = time.time()
+for epoch in range(start_epoch, start_epoch+100):
     train(epoch)
     test(epoch)
+end_time = time.time()
+print('Total time usage: {}'.format(format_time(end_time - begin_time)))

@@ -13,7 +13,7 @@ $ conda create --name iid2019_project_env
 $ conda activate iid2019_project_env
 ```
 
-### Install PyTorch and cudatoolkit
+### Install PyTorch and `cudatoolkit`
 
 You should check the version of cuda installed on your system.
 
@@ -29,31 +29,31 @@ For cuda with version `10.x`:
 $ conda install pytorch=1.3.1 torchvision cudatoolkit=10.1 -c pytorch
 ```
 
-### Install matplotlib
+### Install `matplotlib`
 
 ```shell
 $ conda install matplotlib
 ```
 
-### Install jupyter-lab
+### Install `jupyterlab`
 
 ```shell
 $ conda install -c conda-forge jupyterlab
 ```
 
-### Install thop
+### Install `thop`
 
 ```shell
 $ pip install thop
 ```
 
-### Install networks
+### Install `networkx`
 
 ```shell
 $ pip install networkx
 ```
 
-### Start jupyter-lab
+### Start `jupyterlab`
 
 ```shell
 $ jupyter-lab --ip 0.0.0.0 --port 35681 --config config.py

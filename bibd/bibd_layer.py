@@ -5,11 +5,6 @@ import numpy as np
 
 
 class BibdLinearFunction(Function):
-    # def __init__(self, mask):
-    #     super(BibdLinearFunction, self).__init__()
-    #     self.mask = mask
-
-
     @staticmethod
     def forward(cxt, input, weight, mask):
         cxt.save_for_backward(input, weight, mask)

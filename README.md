@@ -55,9 +55,9 @@ $ jupyter-lab --ip 0.0.0.0 --port 35681 --config config.py
 
 ## Experiments data
 
-| model | dataset | epoch | training time |
-|---|---|---|---|
-| mlp | mnist | 10 | 1min 46s |
-| mlp_bibd | mnist | 10 | 1min 44s |
-| mlp | cifar10 | 100 | 23min 25s |
-| mlp_bibd | cifar10 | 100 | 20min 36s |
+| model | dataset | epoch | training time | accuracy | Params | FLOPs |
+|---|---|---|---|---|---|---|
+| mlp | mnist | 10 | 1min 55s | 96.4% | ? | 0.08M |
+| mlp_bibd | mnist | 10 | 1min 49s | 96.0% | ? | 0.08M |
+| mlp | cifar10 | 100 | 23min 25s | 50.7% | ? | 0.31M |
+| mlp_bibd | cifar10 | 100 | 20min 36s | 48.9% | ? | 0.30M |

@@ -123,12 +123,14 @@ class MulExpander(Function):
     
     @staticmethod
     def backward(cxt, grad_output):
-        mask = cxt.saved_tensors
+        grad_bias = None
+
+        mask = cxt.saved_tensors[0]
 
         grad_weight = grad_output.clone()
         grad_weight.mul_(mask.data)
 
-        return grad_weight
+        return grad_weight, grad_bias
 
 
 class execute2DConvolution(torch.nn.Module):
@@ -142,7 +144,7 @@ class execute2DConvolution(torch.nn.Module):
 
 
     def forward(self, dataIn, weightIn):
-        fpWeights = MulExpander(self.mask)(weightIn)
+        fpWeights = MulExpander.apply(weightIn, self.mask)
         return torch.nn.functional.conv2d(dataIn, fpWeights, bias=None,
                                           stride=self.cStride, padding=self.cPad,
                                           dilation=self.cDil, groups=self.cGrp)
@@ -166,19 +168,13 @@ class BibdConv2d(torch.nn.Module):
         n = kernel_size * kernel_size * out_channels
         # initialize the weights and the bias as well as the
         self.fpWeight = torch.nn.Parameter(data=torch.Tensor(out_channels, in_channels, kernel_size, kernel_size), requires_grad=True)
-        nn.init.kaiming_normal(self.fpWeight.data, mode='fan_out')
+        nn.init.kaiming_normal_(self.fpWeight.data, mode='fan_out')
 
+        fake_bibd_mask = generate_fake_bibd_mask(in_channels, out_channels)
         self.mask = torch.zeros(out_channels, (in_channels), 1, 1)
-        if in_channels > out_channels:
-            for i in range(out_channels):
-                x = torch.randperm(in_channels)
-                for j in range(expandSize):
-                    self.mask[i][x[j]][0][0] = 1
-        else:
-            for i in range(in_channels):
-                x = torch.randperm(out_channels)
-                for j in range(expandSize):
-                    self.mask[x[j]][i][0][0] = 1
+        for i in range(out_channels):
+            for j in range(in_channels):
+                self.mask[i][j][0][0] = fake_bibd_mask[i][j]
 
         self.mask = self.mask.repeat(1, 1, kernel_size, kernel_size)
         self.mask = nn.Parameter(self.mask.cuda())

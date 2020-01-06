@@ -14,6 +14,7 @@ import argparse
 from models import *
 from utils import progress_bar
 from utils import format_time
+from models.resnet_bibd import *
 
 import time
 
@@ -53,7 +54,8 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 # Model
 print('==> Building model..')
 # net = VGG('VGG19')
-net = ResNet18()
+# net = ResNet18()
+net = BResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
 # net = DenseNet121()
@@ -67,6 +69,7 @@ net = ResNet18()
 #net = EfficientNetB0()
 net = net.to(device)
 
+print(net)
 
 # This may not work on the CS280 AI cluster
 if device == 'cuda':

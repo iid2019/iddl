@@ -7,17 +7,19 @@ Reference:
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import sys
+sys.path.append('../bibd')
+from bibd_layer import BibdConv2d
 
-
-class BasicBlock(nn.Module):
+class BBasicBlock(nn.Module):
     expansion = 1
 
 
     def __init__(self, in_planes, planes, stride=1):
-        super(BasicBlock, self).__init__()
-        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        super(BBasicBlock, self).__init__()
+        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
@@ -111,23 +113,23 @@ class BResNet(nn.Module):
 
 
 def BResNet18():
-    return BResNet(BasicBlock, [2,2,2,2])
+    return BResNet(BBasicBlock, [2,2,2,2])
 
 
 def BResNet34():
-    return BResNet(BasicBlock, [3,4,6,3])
+    return BResNet(BBasicBlock, [3,4,6,3])
 
 
 def BResNet50():
-    return BResNet(Bottleneck, [3,4,6,3])
+    return BResNet(BBottleneck, [3,4,6,3])
 
 
 def BResNet101():
-    return BResNet(Bottleneck, [3,4,23,3])
+    return BResNet(BBottleneck, [3,4,23,3])
 
 
 def BResNet152():
-    return BResNet(Bottleneck, [3,8,36,3])
+    return BResNet(BBottleneck, [3,8,36,3])
 
 
 def test():

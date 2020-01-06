@@ -47,6 +47,12 @@ $ conda install -c conda-forge jupyterlab
 $ pip install thop
 ```
 
+### Install networks
+
+```shell
+$ pip install networkx
+```
+
 ### Start jupyter-lab
 
 ```shell

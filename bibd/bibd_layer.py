@@ -2,6 +2,7 @@ import torch
 from torch.autograd import Variable, Function
 import torch.nn as nn
 import numpy as np
+import math
 
 
 def generate_bibd_mask(q):
@@ -42,6 +43,23 @@ def generate_bibd_mask(q):
         for n in range(q):
             for o in range(q):
                 mask[q * (m + 2) + n][allgrids[m][n][o]] = 1
+                
+    return mask
+
+
+def generate_fake_bibd_mask(v, b):
+    """
+    A fake BIBD generator via BIBD truncation.
+    """
+    # Calculate the minimal q to cover v
+    q = math.ceil(math.sqrt(v))
+
+    bibd_mask = generate_bibd_mask(q)
+
+    mask = np.zeros([b, v])
+    for row in range(mask.shape[0]):
+        for col in range(mask.shape[1]):
+            mask[row][col] = bibd_mask[row % (q*(q+1))][col]
                 
     return mask
 
@@ -131,13 +149,13 @@ class execute2DConvolution(torch.nn.Module):
 
 
 class BibdConv2d(torch.nn.Module):
-    def __init__(self, inWCin, inWCout, kernel_size, expandSize,
-                 stride=1, padding=0, inDil=1, groups=1, mode='random'):
+    def __init__(self, in_channels, out_channels, kernel_size,
+                 stride=1, padding=0, inDil=1, groups=1):
         super(BibdConv2d, self).__init__()
         # Initialize all parameters that the convolution function needs to know
         self.kernel_size = kernel_size
-        self.in_channels = inWCin
-        self.out_channels = inWCout
+        self.in_channels = in_channels
+        self.out_channels = out_channels
         self.conStride = stride
         self.conPad = padding
         self.outPad = 0
@@ -145,25 +163,25 @@ class BibdConv2d(torch.nn.Module):
         self.conTrans = False
         self.conGroups = groups
 
-        n = kernel_size * kernel_size * inWCout
+        n = kernel_size * kernel_size * out_channels
         # initialize the weights and the bias as well as the
-        self.fpWeight = torch.nn.Parameter(data=torch.Tensor(inWCout, inWCin, kernel_size, kernel_size), requires_grad=True)
+        self.fpWeight = torch.nn.Parameter(data=torch.Tensor(out_channels, in_channels, kernel_size, kernel_size), requires_grad=True)
         nn.init.kaiming_normal(self.fpWeight.data, mode='fan_out')
 
-        self.mask = torch.zeros(inWCout, (inWCin), 1, 1)
-        if inWCin > inWCout:
-            for i in range(inWCout):
-                x = torch.randperm(inWCin)
+        self.mask = torch.zeros(out_channels, (in_channels), 1, 1)
+        if in_channels > out_channels:
+            for i in range(out_channels):
+                x = torch.randperm(in_channels)
                 for j in range(expandSize):
                     self.mask[i][x[j]][0][0] = 1
         else:
-            for i in range(inWCin):
-                x = torch.randperm(inWCout)
+            for i in range(in_channels):
+                x = torch.randperm(out_channels)
                 for j in range(expandSize):
                     self.mask[x[j]][i][0][0] = 1
 
         self.mask = self.mask.repeat(1, 1, kernel_size, kernel_size)
-        self.mask =  nn.Parameter(self.mask.cuda())
+        self.mask = nn.Parameter(self.mask.cuda())
         self.mask.requires_grad = False
 
 

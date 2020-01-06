@@ -68,11 +68,11 @@ net = ResNet18()
 net = net.to(device)
 
 
-# # This may not work on the AI cluster.
-# if device == 'cuda':
-#     print('Running using torch.nn.DataParallel...')
-#     net = torch.nn.DataParallel(net)
-#     cudnn.benchmark = True
+# This may not work on the CS280 AI cluster
+if device == 'cuda':
+    print('Running using torch.nn.DataParallel...')
+    net = torch.nn.DataParallel(net)
+    cudnn.benchmark = True
 
 
 if args.resume:
@@ -146,7 +146,7 @@ def test(epoch):
         best_acc = acc
 
 begin_time = time.time()
-for epoch in range(start_epoch, start_epoch+100):
+for epoch in range(start_epoch, start_epoch+30):
     train(epoch)
     test(epoch)
 end_time = time.time()

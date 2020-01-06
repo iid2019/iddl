@@ -1,6 +1,4 @@
-'''ResNet in PyTorch.
-
-For Pre-activation ResNet, see 'preact_resnet.py'.
+'''ResNet with BIBD in PyTorch.
 
 Reference:
 [1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
@@ -41,7 +39,6 @@ class BasicBlock(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-
     def __init__(self, in_planes, planes, stride=1):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
@@ -81,6 +78,7 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
         self.linear = nn.Linear(512*block.expansion, num_classes)
 
+
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
@@ -88,6 +86,7 @@ class ResNet(nn.Module):
             layers.append(block(self.in_planes, planes, stride))
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
+
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -104,14 +103,18 @@ class ResNet(nn.Module):
 def ResNet18():
     return ResNet(BasicBlock, [2,2,2,2])
 
+
 def ResNet34():
     return ResNet(BasicBlock, [3,4,6,3])
+
 
 def ResNet50():
     return ResNet(Bottleneck, [3,4,6,3])
 
+
 def ResNet101():
     return ResNet(Bottleneck, [3,4,23,3])
+
 
 def ResNet152():
     return ResNet(Bottleneck, [3,8,36,3])

@@ -90,3 +90,82 @@ class BibdLinear(torch.nn.Module):
 
     def forward(self, input):
         return BibdLinearFunction.apply(input, self.weight, self.mask)
+
+
+class MulExpander(Function):
+    @staticmethod
+    def forward(cxt, weight, mask):
+        cxt.save_for_backward(mask)
+
+        extendWeights = weight.clone()
+        extendWeights.mul_(mask.data)
+
+        return extendWeights
+
+    
+    @staticmethod
+    def backward(cxt, grad_output):
+        mask = cxt.saved_tensors
+
+        grad_weight = grad_output.clone()
+        grad_weight.mul_(mask.data)
+
+        return grad_weight
+
+
+class execute2DConvolution(torch.nn.Module):
+    def __init__(self, mask, inStride=1, inPadding=0, inDilation=1, inGroups=1):
+        super(execute2DConvolution, self).__init__()
+        self.cStride = inStride
+        self.cPad = inPadding
+        self.cDil = inDilation
+        self.cGrp = inGroups
+        self.mask = mask
+
+
+    def forward(self, dataIn, weightIn):
+        fpWeights = MulExpander(self.mask)(weightIn)
+        return torch.nn.functional.conv2d(dataIn, fpWeights, bias=None,
+                                          stride=self.cStride, padding=self.cPad,
+                                          dilation=self.cDil, groups=self.cGrp)
+
+
+class BibdConv2d(torch.nn.Module):
+    def __init__(self, inWCin, inWCout, kernel_size, expandSize,
+                 stride=1, padding=0, inDil=1, groups=1, mode='random'):
+        super(BibdConv2d, self).__init__()
+        # Initialize all parameters that the convolution function needs to know
+        self.kernel_size = kernel_size
+        self.in_channels = inWCin
+        self.out_channels = inWCout
+        self.conStride = stride
+        self.conPad = padding
+        self.outPad = 0
+        self.conDil = inDil
+        self.conTrans = False
+        self.conGroups = groups
+
+        n = kernel_size * kernel_size * inWCout
+        # initialize the weights and the bias as well as the
+        self.fpWeight = torch.nn.Parameter(data=torch.Tensor(inWCout, inWCin, kernel_size, kernel_size), requires_grad=True)
+        nn.init.kaiming_normal(self.fpWeight.data, mode='fan_out')
+
+        self.mask = torch.zeros(inWCout, (inWCin), 1, 1)
+        if inWCin > inWCout:
+            for i in range(inWCout):
+                x = torch.randperm(inWCin)
+                for j in range(expandSize):
+                    self.mask[i][x[j]][0][0] = 1
+        else:
+            for i in range(inWCin):
+                x = torch.randperm(inWCout)
+                for j in range(expandSize):
+                    self.mask[x[j]][i][0][0] = 1
+
+        self.mask = self.mask.repeat(1, 1, kernel_size, kernel_size)
+        self.mask =  nn.Parameter(self.mask.cuda())
+        self.mask.requires_grad = False
+
+
+    def forward(self, dataInput):
+        return execute2DConvolution(self.mask, self.conStride, self.conPad,self.conDil, self.conGroups)(dataInput, self.fpWeight)

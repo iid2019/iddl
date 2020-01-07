@@ -68,7 +68,7 @@ $ jupyter-lab --ip 0.0.0.0 --port 35681 --config config.py
 | mlp | cifar10 | 100 | 23min 25s | 50.7% | ? | 0.31M |
 | mlp_bibd | cifar10 | 100 | 20min 36s | 48.9% | ? | 0.30M |
 | resnet18 | cifar10 | 30 | (total) 35m22s | 81.440% | ? | ? |
-| resnet18_bibd | cifar10 | 30 | ? | ? | ? |
+| resnet18_bibd | cifar10 | 30 | (total) 36m13s | 77.010% | ? |
 
 Hardware info:
 - GPU name: GeForce GTX 970

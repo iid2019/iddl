@@ -67,7 +67,7 @@ $ jupyter-lab --ip 0.0.0.0 --port 35681 --config config.py
 | mlp_bibd | mnist | 10 | 1min 49s | 96.0% | ? | 0.08M |
 | mlp | cifar10 | 100 | 23min 25s | 50.7% | ? | 0.31M |
 | mlp_bibd | cifar10 | 100 | 20min 36s | 48.9% | ? | 0.30M |
-| resnet18 | cifar10 | 30 | (total) 35m22s | 81.440% | ? | ? |
+| resnet18 | cifar10 | 30 | (total) 35m22s | 81.440% | ? | 557.89M |
 | resnet18_bibd | cifar10 | 30 | (total) 36m13s | 77.010% | ? |
 
 Hardware info:

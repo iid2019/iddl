@@ -2,6 +2,14 @@
 
 Deep learning
 
+## MLP experiments
+
+- MLP
+- MLP with BIBD
+- Random sparse MLP
+
+You can check the live Jupyter Notebook here: [mlp_bibd_experiments.ipynb](https://nbviewer.jupyter.org/github/DerekDick/iid2019-final-project/blob/master/mlp/mlp_bibd_experiments.ipynb)
+
 ## Setup
 
 Use `conda` to manage Python environments.

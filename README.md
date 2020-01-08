@@ -2,8 +2,15 @@
 
 Deep learning
 
+## BIBD
+
+Balanced Incomplete Block Design (BIBD) is the core technique in this project.
+
+[bibd_visualization.ipynb](https://nbviewer.jupyter.org/github/DerekDick/iid2019-final-project/blob/master/bibd_visualization.ipynb)
+
 ## MLP experiments
 
+Three models:
 - MLP
 - MLP with BIBD
 - Random sparse MLP

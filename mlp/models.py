@@ -8,14 +8,20 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
+import sys
+sys.path.append('../bibd')
+from bibd_layer import BibdLinear, RandomSparseLinear
 
 
 class Mlp(nn.Module):
     r""""Multi layer perceptron."""
+    
+    
+    name = 'MLP'
 
     
     def __init__(self, input_dim, output_dim):
-        super(Net, self).__init__()
+        super(Mlp, self).__init__()
 
         self.input_dim = input_dim
 
@@ -36,6 +42,9 @@ class Mlp(nn.Module):
 
 class BibdMlp(nn.Module):
     r"""Multi layer perceptron with BIBD."""
+
+
+    name = 'MLP with BIBD'
 
     
     def __init__(self, input_dim, output_dim):
@@ -63,12 +72,16 @@ class RandomSparseMlp(nn.Module):
     r"""Multi layer perceptron with random sparsification."""
 
 
+    name = 'Random sparse MLP'
+
+
     def __init__(self, input_dim, output_dim):
-        super(BibdMlp, self).__init__()
+        super(RandomSparseMlp, self).__init__()
 
         self.input_dim = input_dim
         
         # Layer definitions
+        q = 7
         self.fc1 = nn.Linear(input_dim, q*q)
         self.fc1_drop = nn.Dropout(0.2)
         self.randomSparseLinear2 = RandomSparseLinear(q*q, q*(q+1))

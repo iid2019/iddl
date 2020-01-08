@@ -98,6 +98,32 @@ class BibdLinearFunction(Function):
         return grad_input, grad_weight, grad_bias
 
 
+class PrunedLinearFunction(Function):
+    @staticmethod
+    def forward(cxt, input, weight, mask):
+        cxt.save_for_backward(input, weight, mask)
+        extendWeight = weight.clone()
+        extendWeight.mul_(mask.data)
+        output = input.mm(extendWeight.t())
+        return output
+
+
+    @staticmethod
+    def backward(cxt, grad_output):
+        input, weight, mask = cxt.saved_tensors
+        grad_input = grad_weight = grad_bias = None
+        extendWeight = weight.clone()
+        extendWeight.mul_(mask.data)
+
+        if cxt.needs_input_grad[0]:
+            grad_input = grad_output.mm(extendWeight)
+        if cxt.needs_input_grad[1]:
+            grad_weight = grad_output.clone().t().mm(input)
+            grad_weight.mul_(mask.data)
+
+        return grad_input, grad_weight, grad_bias
+
+
 class BibdLinear(torch.nn.Module):
     def __init__(self, input_features, output_features):
         super(BibdLinear, self).__init__()
@@ -121,7 +147,7 @@ class BibdLinear(torch.nn.Module):
 
 class RandomSparseLinear(torch.nn.Module):
     def __init__(self, input_features, output_features):
-        super(BibdLinear, self).__init__()
+        super(RandomSparseLinear, self).__init__()
 
         self.input_features = input_features
         self.output_features = output_features

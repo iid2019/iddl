@@ -6,8 +6,8 @@ import math
 
 
 def generate_bibd_mask(q):
-    '''
-    Given q as a prime power, generate mask with size (q*(q+1), q*q)
+    r'''
+    Given q as a prime power, generates mask with size (q*(q+1), q*q)
     For example when q = 2, the mask is 
     [[1. 1. 0. 0.]
      [0. 0. 1. 1.]
@@ -48,9 +48,9 @@ def generate_bibd_mask(q):
 
 
 def generate_fake_bibd_mask(v, b):
-    """
-    A fake BIBD generator via BIBD truncation.
-    """
+    r"""A fake BIBD generator via BIBD truncation."""
+
+
     # Calculate the minimal q to cover v
     q = math.ceil(math.sqrt(v))
 
@@ -64,7 +64,15 @@ def generate_fake_bibd_mask(v, b):
     return mask
 
 
+def generate_random_sparse_mask(v, b):
+    mask = generate_fake_bibd_mask(v, b).reshape((v*b, 1))
+    np.random.shuffle(mask)
+    mask = mask.reshape((b, v))
+    return mask
+
+
 class BibdLinearFunction(Function):
+    # TODO: This should be deprecated with replacement of PrunedLinearFunction
     @staticmethod
     def forward(cxt, input, weight, mask):
         cxt.save_for_backward(input, weight, mask)
@@ -91,23 +99,45 @@ class BibdLinearFunction(Function):
 
 
 class BibdLinear(torch.nn.Module):
-    def __init__(self, input_features, output_features, number_of_block):
+    def __init__(self, input_features, output_features):
         super(BibdLinear, self).__init__()
+
         self.input_features = input_features
         self.output_features = output_features
 
         self.weight = nn.Parameter(data=torch.Tensor(output_features, input_features), requires_grad=True)
+        nn.init.kaiming_normal_(self.weight.data, mode='fan_in')
 
-        self.mask = torch.from_numpy(generate_bibd_mask(number_of_block))
+        self.mask = torch.from_numpy(generate_fake_bibd_mask(input_features, output_features))
 
         self.mask =  self.mask.cuda()
-        nn.init.kaiming_normal_(self.weight.data, mode='fan_in')
         self.mask =  nn.Parameter(self.mask.cuda())
         self.mask.requires_grad = False
 
 
     def forward(self, input):
         return BibdLinearFunction.apply(input, self.weight, self.mask)
+
+
+class RandomSparseLinear(torch.nn.Module):
+    def __init__(self, input_features, output_features):
+        super(BibdLinear, self).__init__()
+
+        self.input_features = input_features
+        self.output_features = output_features
+
+        self.weight = nn.Parameter(data=torch.Tensor(output_features, input_features), requires_grad=True)
+        nn.init.kaiming_normal_(self.weight.data, mode='fan_in')
+
+        self.mask = torch.from_numpy(generate_random_sparse_mask(input_features, output_features))
+
+        self.mask =  self.mask.cuda()
+        self.mask =  nn.Parameter(self.mask.cuda())
+        self.mask.requires_grad = False
+
+
+    def forward(self, input):
+        return PrunedLinearFunction.apply(input, self.weight, self.mask)
 
 
 class MulExpander(Function):

@@ -115,3 +115,6 @@ dmypy.json
 
 # Data folder
 data/
+
+# VS Code
+.vscode

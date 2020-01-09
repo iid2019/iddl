@@ -15,6 +15,7 @@ class Experiment():
         self.n_epoch = n_epoch
         self.loss_ndarray = np.zeros((0, n_epoch), dtype=float)
         self.acc_ndarray = np.zeros((0, n_epoch), dtype=float)
+        self.time_array = np.array([])
         self.model_name_array = np.array([])
 
         self.color_list = ['#22a7f0', '#cf000f', '#03a678']
@@ -44,6 +45,18 @@ class Experiment():
             self.__train(model, optimizer, criterion, train_loader, epoch, log_interval=500)
             self.__validate(model, criterion, validation_loader, loss_list, acc_list)
         end_time = time.time() # End time
+        
+        # Store the name of the model
+        self.model_name_array = np.append(self.model_name_array, model.name)
+
+        # Store the time
+        self.time_array = np.append(self.time_array, end_time - begin_time)
+
+        # Store the loss and accuracy data
+        self.loss_ndarray.resize((self.loss_ndarray.shape[0] + 1, self.loss_ndarray.shape[1]), refcheck=False)
+        self.loss_ndarray[self.loss_ndarray.shape[0] - 1] = np.array(loss_list)
+        self.acc_ndarray.resize((self.acc_ndarray.shape[0] + 1, self.acc_ndarray.shape[1]), refcheck=False)
+        self.acc_ndarray[self.acc_ndarray.shape[0] - 1] = np.array(acc_list)
 
         # Print total time usage
         time_str = format_time(end_time - begin_time)
@@ -52,14 +65,6 @@ class Experiment():
         print('  ' + bcolors.OKGREEN + bcolors.BOLD + 'Time usage for model ' + bcolors.UNDERLINE + bcolors.OKBLUE + model.name + bcolors.ENDC + ': ' + time_str + '  ')
         print('=' * length)
         print()
-
-        # Store the loss and accuracy data
-        self.loss_ndarray.resize((self.loss_ndarray.shape[0] + 1, self.loss_ndarray.shape[1]), refcheck=False)
-        self.loss_ndarray[self.loss_ndarray.shape[0] - 1] = np.array(loss_list)
-        self.acc_ndarray.resize((self.acc_ndarray.shape[0] + 1, self.acc_ndarray.shape[1]), refcheck=False)
-        self.acc_ndarray[self.acc_ndarray.shape[0] - 1] = np.array(acc_list)
-        
-        self.model_name_array = np.append(self.model_name_array, model.name)
 
         return
 
@@ -116,14 +121,14 @@ class Experiment():
             val_loss, correct, len(validation_loader.dataset), accuracy * 100.0))
 
 
-    def plot(self):
+    def plot(self, loss_title='Loss v.s. Epoch', acc_title='Accuracy v.s. Epoch'):
         fig_loss, ax = plt.subplots(figsize=(16,8), dpi=200)
         plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
         plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
         for i in range(self.model_name_array.shape[0]):
             ax.plot(range(1, self.n_epoch + 1), self.loss_ndarray[i], '-o', color=self.color_list[i], label=self.model_name_array[i])
             ax.legend(fontsize=20)
-            ax.set_title('Loss v.s. Epoch', fontsize=24)
+            ax.set_title(loss_title, fontsize=24)
             ax.set_xlabel('Epoch', fontsize=20)
             ax.set_ylabel('Loss', fontsize=20)
 
@@ -131,7 +136,7 @@ class Experiment():
         for i in range(self.model_name_array.shape[0]):
             ax.plot(range(1, self.n_epoch + 1), self.acc_ndarray[i], '-o', color=self.color_list[i], label=self.model_name_array[i])
             ax.legend(fontsize=20)
-            ax.set_title('Accuracy v.s. Epoch', fontsize=24)
+            ax.set_title(acc_title, fontsize=24)
             ax.set_xlabel('Epoch', fontsize=20)
             ax.set_ylabel('Accuracy', fontsize=20)
 

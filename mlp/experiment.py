@@ -133,6 +133,8 @@ class Experiment():
             ax.set_ylabel('Loss', fontsize=20)
 
         fig_acc, ax = plt.subplots(figsize=(16,8), dpi=200)
+        plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
+        plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
         for i in range(self.model_name_array.shape[0]):
             ax.plot(range(1, self.n_epoch + 1), self.acc_ndarray[i], '-o', color=self.color_list[i], label=self.model_name_array[i])
             ax.legend(fontsize=20)

@@ -44,7 +44,13 @@ class Experiment():
             self.__train(model, optimizer, criterion, train_loader, epoch, log_interval=500)
             self.__validate(model, criterion, validation_loader, loss_list, acc_list)
         end_time = time.time() # End time
-        print(bcolors.OKGREEN + bcolors.BOLD + 'Time usage for model ' + bcolors.UNDERLINE + bcolors.OKBLUE + model.name + bcolors.ENDC + ': ' + format_time(end_time - begin_time))
+
+        # Print total time usage
+        time_str = format_time(end_time - begin_time)
+        length = len(model.name) + len(time_str) + 23 + 4
+        print('=' * length)
+        print('  ' + bcolors.OKGREEN + bcolors.BOLD + 'Time usage for model ' + bcolors.UNDERLINE + bcolors.OKBLUE + model.name + bcolors.ENDC + ': ' + time_str + '  ')
+        print('=' * length)
         print()
 
         # Store the loss and accuracy data
@@ -111,20 +117,22 @@ class Experiment():
 
 
     def plot(self):
-        fig, ax = plt.subplots(figsize=(16,8), dpi=200)
+        fig_loss, ax = plt.subplots(figsize=(16,8), dpi=200)
+        plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
+        plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
         for i in range(self.model_name_array.shape[0]):
             ax.plot(range(1, self.n_epoch + 1), self.loss_ndarray[i], '-o', color=self.color_list[i], label=self.model_name_array[i])
-            ax.legend()
-            ax.set_title('Loss v.s. Epoch')
-            ax.set_xlabel('Epoch')
-            ax.set_ylabel('Loss')
+            ax.legend(fontsize=20)
+            ax.set_title('Loss v.s. Epoch', fontsize=24)
+            ax.set_xlabel('Epoch', fontsize=20)
+            ax.set_ylabel('Loss', fontsize=20)
 
-        fig, ax = plt.subplots(figsize=(16,8), dpi=200)
+        fig_acc, ax = plt.subplots(figsize=(16,8), dpi=200)
         for i in range(self.model_name_array.shape[0]):
             ax.plot(range(1, self.n_epoch + 1), self.acc_ndarray[i], '-o', color=self.color_list[i], label=self.model_name_array[i])
-            ax.legend()
-            ax.set_title('Accuracy v.s. Epoch')
-            ax.set_xlabel('Epoch')
-            ax.set_ylabel('Accuracy')
+            ax.legend(fontsize=20)
+            ax.set_title('Accuracy v.s. Epoch', fontsize=24)
+            ax.set_xlabel('Epoch', fontsize=20)
+            ax.set_ylabel('Accuracy', fontsize=20)
 
-        return
+        return fig_loss, fig_acc

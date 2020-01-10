@@ -1,4 +1,4 @@
-# Final project of the team iid2019 for CS280
+# IDDL: An Integrated Distributed Deep Learning framework
 
 Deep learning
 
@@ -17,18 +17,36 @@ Three models:
 
 You can check the live Jupyter Notebook here: [mlp_bibd_experiments.ipynb](https://nbviewer.jupyter.org/github/DerekDick/iid2019-final-project/blob/master/mlp/mlp_bibd_experiments.ipynb)
 
-## Setup
+## Setup development environment
 
 Use `conda` to manage Python environments.
 
-### Create a new environment
+There are two ways to setup the development environment: from environment file or installing dependencies manually.
 
+### From environment file (recommended)
+
+You can just install all the dependencies by one command from the environment file:
+
+For cuda with version `9.x`:
 ```shell
-$ conda create --name iid2019_project_env
-$ conda activate iid2019_project_env
+$ conda create --name iddl_env --file iddl_env_cuda9_env.txt
 ```
 
-### Install PyTorch and `cudatoolkit`
+For cuda with version `10.x`:
+```shell
+$ conda create --name iddl_env --file iddl_env_cuda10_env.txt
+```
+
+### Install dependencies manually
+
+First create a new environemnt:
+
+```shell
+$ conda create --name iddl_env
+$ conda activate iddl_env
+```
+
+#### Install PyTorch and `cudatoolkit`
 
 You should check the version of cuda installed on your system.
 
@@ -44,25 +62,25 @@ For cuda with version `10.x`:
 $ conda install pytorch=1.3.1 torchvision cudatoolkit=10.1 -c pytorch
 ```
 
-### Install `matplotlib`
+#### Install `matplotlib`
 
 ```shell
 $ conda install matplotlib
 ```
 
-### Install `jupyterlab`
+#### Install `jupyterlab`
 
 ```shell
 $ conda install -c conda-forge jupyterlab
 ```
 
-### Install `thop`
+#### Install `thop`
 
 ```shell
 $ pip install thop
 ```
 
-### Install `networkx`
+#### Install `networkx`
 
 ```shell
 $ pip install networkx

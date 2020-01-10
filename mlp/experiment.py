@@ -122,7 +122,7 @@ class Experiment():
 
 
     def plot(self, loss_title='Loss v.s. Epoch', acc_title='Accuracy v.s. Epoch'):
-        fig_loss, ax = plt.subplots(figsize=(16,8), dpi=200)
+        fig_loss, ax = plt.subplots(figsize=(10,6), dpi=200)
         plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
         plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
         for i in range(self.model_name_array.shape[0]):
@@ -132,7 +132,7 @@ class Experiment():
             ax.set_xlabel('Epoch', fontsize=20)
             ax.set_ylabel('Loss', fontsize=20)
 
-        fig_acc, ax = plt.subplots(figsize=(16,8), dpi=200)
+        fig_acc, ax = plt.subplots(figsize=(10,6), dpi=200)
         plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
         plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
         for i in range(self.model_name_array.shape[0]):

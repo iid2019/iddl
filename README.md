@@ -76,6 +76,8 @@ $ conda install -c conda-forge jupyterlab
 
 #### Install `thop`
 
+> Attention: The `thop` package does not provide a conda distribution, thus this package must be installed vis pip. Pip dependencies are not listed in the conda environment file, which means that you need to install the `thop` package through pip even you create the conda environment from the environment file.
+
 ```shell
 $ pip install thop
 ```
@@ -83,7 +85,7 @@ $ pip install thop
 #### Install `networkx`
 
 ```shell
-$ pip install networkx
+$ conda install networkx
 ```
 
 ### Start `jupyterlab`

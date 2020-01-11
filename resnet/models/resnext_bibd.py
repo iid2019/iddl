@@ -50,7 +50,7 @@ class ResNeXt(nn.Module):
         self.in_planes = 64
 
         # bibd
-        self.fc1 = nn.Linear(256 * 32 * 32, 81)
+        self.fc1 = nn.Linear(262144, 81) # 262144 * 81
         self.fc2 = BibdLinear(81, 90)
         self.fc3 = nn.Linear(90, 256 * 32 * 32)
         
@@ -80,7 +80,7 @@ class ResNeXt(nn.Module):
         # out.size: 128, 256, 32, 32
         
         # fc_bibd
-        out = out.view(128,-1)
+        out = out.view(-1,256 * 32 * 32)
         out = F.relu(self.fc1(out))
         out = F.relu(self.fc2(out))
         out = F.relu(self.fc3(out))

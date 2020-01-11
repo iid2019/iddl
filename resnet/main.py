@@ -15,6 +15,7 @@ from models import *
 from utils import progress_bar
 from utils import format_time
 from models.resnet_bibd import *
+from models.resnext_bibd import *
 
 import time
 
@@ -24,8 +25,13 @@ parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 args = parser.parse_args()
 
+device = 'cpu'
+
+'''
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print('Device: {}'.format(device))
+'''
+
 best_acc = 0  # best test accuracy
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
@@ -49,13 +55,18 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
 testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
 
+for (X_train, y_train) in trainloader:
+    print('X_train:', X_train.size(), 'type:', X_train.type())
+    print('y_train:', y_train.size(), 'type:', y_train.type())
+    break
+
 classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 # Model
 print('==> Building model..')
 # net = VGG('VGG19')
 # net = ResNet18()
-net = BResNet18()
+# net = BResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
 # net = DenseNet121()
@@ -66,7 +77,8 @@ net = BResNet18()
 # net = ShuffleNetG2()
 # net = SENet18()
 # net = ShuffleNetV2(1)
-#net = EfficientNetB0()
+# net = EfficientNetB0()
+net = ResNeXt29_2x64d_bibd()
 net = net.to(device)
 
 print(net)

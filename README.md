@@ -6,7 +6,7 @@ Deep learning
 
 Balanced Incomplete Block Design (BIBD) is the core technique in this project.
 
-[bibd_visualization.ipynb](https://nbviewer.jupyter.org/github/DerekDick/iid2019-final-project/blob/master/bibd_visualization.ipynb)
+[bibd_visualization.ipynb](https://nbviewer.jupyter.org/github/DerekDick/iid2019-final-project/blob/master/bibd/bibd_visualization.ipynb)
 
 ## MLP experiments
 
@@ -76,7 +76,7 @@ $ conda install -c conda-forge jupyterlab
 
 #### Install `thop`
 
-> Attention: The `thop` package does not provide a conda distribution, thus this package must be installed vis pip. Pip dependencies are not listed in the conda environment file, which means that you need to install the `thop` package through pip even you create the conda environment from the environment file.
+> Attention: The `thop` package does not provide a conda distribution, thus this package must be installed vis pip. Pip dependencies are not listed in the conda environment file, which means that you need to install the `thop` package through pip even if you create the conda environment from the environment file.
 
 ```shell
 $ pip install thop

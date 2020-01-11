@@ -84,7 +84,7 @@ class ResNeXt(nn.Module):
         out = F.relu(self.fc1(out))
         out = F.relu(self.fc2(out))
         out = F.relu(self.fc3(out))
-        out = out.view(128, 256, 32, 32)
+        out = out.view(-1, 256, 32, 32)
         
         out = self.layer2(out)
         # out.size: 128, 512, 16, 16

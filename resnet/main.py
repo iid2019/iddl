@@ -15,7 +15,8 @@ from models import *
 from utils import progress_bar
 from utils import format_time
 from models.resnet_bibd import *
-from models.resnext_bibd import *
+from models.resnet_gc import *
+from models.resnet_bibd_gc import *
 
 import time
 
@@ -27,10 +28,8 @@ args = parser.parse_args()
 
 device = 'cpu'
 
-'''
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print('Device: {}'.format(device))
-'''
 
 best_acc = 0  # best test accuracy
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
@@ -73,7 +72,9 @@ print('==> Building model..')
 # net = SENet18()
 # net = ShuffleNetV2(1)
 # net = EfficientNetB0()
-net = ResNeXt29_2x64d_bibd()
+# net = ResNeXt29_2x64d_bibd()
+# net = ResNet_gc()
+net = ResNet_bibd_gc() # If you want to run with groups = t, change the code of line 192 in bibd_layer.py with in Groups = t.
 net = net.to(device)
 
 print(net)

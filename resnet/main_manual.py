@@ -26,12 +26,13 @@ import numpy as np
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
-parser.add_argument('--en', default=1, type=int, help='the number of the exits')
+parser.add_argument('--en', default=3, type=int, help='the number of the exits')
 parser.add_argument('--epoch', default=30, type=int, help='the number of the exits')
 args = parser.parse_args()
 num_exit = args.en
 
 device = 'cpu'
+dtype = torch.float32
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print('Device: {}'.format(device))
@@ -63,23 +64,6 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 
 # Model
 print('==> Building model..')
-# net = VGG('VGG19')
-# net = ResNet18()
-# net = BResNet18()
-# net = PreActResNet18()
-# net = GoogLeNet()
-# net = DenseNet121()
-# net = ResNeXt29_2x64d()
-# net = MobileNet()
-# net = MobileNetV2()
-# net = DPN92()
-# net = ShuffleNetG2()
-# net = SENet18()
-# net = ShuffleNetV2(1)
-# net = EfficientNetB0()
-# net = ResNeXt29_2x64d_bibd()
-# net = ResNet_gc()
-# net = ResNet_bibd_gc() # If you want to run with groups = t, change the code of line 192 in bibd_layer.py with in Groups = t.
 net = ResNet_3exit()
 net = net.to(device)
 
@@ -108,42 +92,42 @@ optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5
 def train(epoch):
     print('\nEpoch: %d' % epoch)
     net.train()
-    train_loss = 0
     correct = np.zeros(num_exit)
     total = 0
     for batch_idx, (inputs, targets) in enumerate(trainloader):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = net(inputs)
-        if type(outputs) == np.ndarray:
-            assert outputs.shape[0] == num_exit, 'Error: Check the parameter en!'
-            #mask = np.array([9 * 0.1 ** (num_exit - i) for i in range(num_exit)])
-            #scores = outputs.dot(mask)
-            scores = 0.9 * outputs[2] + 0.09 * outputs[1] + 0.009 * outputs[0]
-            
-        else:
-            assert  num_exit == 1, 'Error: Check the parameter en!'
-            scores = outputs
-        # if batch_idx == 1:
-        #     print ('scores.size:', scores.size())
+        scores = outputs[2] # the final output dominates the baseline
         
         loss = criterion(scores, targets)
-        loss.backward()
+        loss.backward(retain_graph = True)
         optimizer.step()
-
-        train_loss += loss.item()
         
-        if num_exit == 1:
-            _, predicted = outputs.max(1)
-            correct[0] += predicted.eq(targets).sum().item()
-        else:
-            for i in range(num_exit):
+        outputs[0] = e1_Net(outputs[0], params1) # the outputs of the exits branches
+        outputs[1] = e2_Net(outputs[1], params2)
+        
+        loss1 = F.cross_entropy(outputs[0], targets)
+        loss1.backward(retain_graph = True)
+        
+        loss2 = F.cross_entropy(outputs[1], targets)
+        loss2.backward()
+        
+        with torch.no_grad():
+            for w in params1 + params2:
+                #print (w.shape)
+                w -= args.lr * w.grad
+
+                # Manually zero the gradients after running the backward pass
+                w.grad.zero_()
+        
+        for i in range(num_exit):
                 _, predicted = outputs[i].max(1)
                 correct[i] += predicted.eq(targets).sum().item()
             
         total += targets.size(0)
         
-        msg = 'Loss: %.2f' % (train_loss / (batch_idx + 1))
+        msg = ''
         for i in range(num_exit):
             msg = msg + '| Ex%d: %.2f%%' % (i + 1, 100. * correct[i] / total)
 
@@ -160,15 +144,12 @@ def test(epoch):
         for batch_idx, (inputs, targets) in enumerate(testloader):
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = net(inputs)
-            scores = outputs.sum(axis = 0)
+            outputs[0] = e1_Net(outputs[0], params1)
+            outputs[1] = e2_Net(outputs[1], params2)
             
-            if num_exit == 1:
-                _, predicted = outputs.max(1)
-                correct[0] += predicted.eq(targets).sum().item()
-            else:
-                for i in range(num_exit):
-                    _, predicted = outputs[i].max(1)
-                    correct[i] += predicted.eq(targets).sum().item()
+            for i in range(num_exit):
+                _, predicted = outputs[i].max(1)
+                correct[i] += predicted.eq(targets).sum().item()
                 
             total += targets.size(0)
          
@@ -190,6 +171,82 @@ def test(epoch):
             os.mkdir('checkpoint')
         torch.save(state, './checkpoint/ckpt.pth')
         best_acc = acc
+        
+def flatten(x):
+    N = x.shape[0] # read in N, C, H, W
+    return x.view(N, -1)  # "flatten" the C * H * W values into a single vector per image
+
+def random_weight(shape): 
+    """
+    Initialization
+    The BIBD part can be added in this function.
+    Create random Tensors for weights; setting requires_grad=True means that we
+    want to compute gradients for these Tensors during the backward pass.
+    We use Kaiming normalization: sqrt(2 / fan_in)
+    """
+    if len(shape) == 2:  # FC weight
+        fan_in = shape[0]
+    else:
+        fan_in = np.prod(shape[1:]) # conv weight [out_channel, in_channel, kH, kW]
+    # randn is standard normal distribution generator. 
+    
+    w = torch.randn(shape, device=device, dtype=dtype) * np.sqrt(2. / fan_in)
+    w.requires_grad = True
+    
+    return w
+
+def zero_weight(shape):
+    return torch.zeros(shape, device=device, dtype=dtype, requires_grad=True)
+
+def e1_Net(exit1, params):
+    conv1_w, conv1_b, fc1_w, fc1_b = params
+    exit1 = F.relu(F.conv2d(exit1, conv1_w, conv1_b, stride = 1, padding = 1))
+    exit1 = flatten(exit1).mm(fc1_w) + fc1_b
+    return exit1
+    
+def e2_Net(exit2, params):
+    conv2_w, conv2_b, fc2_w, fc2_b = params
+    exit2 = F.relu(F.conv2d(exit2, conv2_w, conv2_b, stride = 1, padding = 1))
+    exit2 = flatten(exit2).mm(fc2_w) + fc2_b
+    return exit2
+    
+#def train_exit(exit1, exit2):    
+    '''
+    conv1_e = nn.Conv2d(128, 32, kernel_size = 3, stride = 1, padding = 1, bias = False)
+    self.bn1_e = nn.BatchNorm2d(32)
+    self.relu1 = nn.ReLU(inplace = True)
+        self.linear1 = nn.Linear(32 * 16 * 16, num_classes)
+        self.conv2_e = nn.Conv2d(256, 32, kernel_size = 3, stride = 1, padding = 1, bias = False)
+        self.bn2_e = nn.BatchNorm2d(32)
+        self.relu2 = nn.ReLU(inplace = True)
+        self.linear2 = nn.Linear(32 * 8 * 8, num_classes)
+    exit_1 = self.relu1(self.bn1_e(self.conv1_e(out)))
+    # 128, 32, 16, 16
+    exit_1 = exit_1.view(exit_1.size(0), -1)
+    exit_1 = self.linear1(exit_1)
+    
+    exit_2 = self.relu2(self.bn2_e(self.conv2_e(out)))
+    # 128, 32, 8, 8
+    exit_2 = exit_2.view(exit_2.size(0), -1)
+    exit_2 = self.linear2(exit_2)
+    '''
+    
+    # train
+
+    
+# initialization
+conv1_w = random_weight((32, 128, 3, 3))
+conv1_b = zero_weight((32,))
+fc1_w = random_weight((32*16*16, 10))
+fc1_b = zero_weight((10,))
+params1 = [conv1_w, conv1_b, fc1_w, fc1_b]
+    
+conv2_w = random_weight((32, 256, 3, 3))
+conv2_b = zero_weight((32,))
+fc2_w = random_weight((32*8*8, 10))
+fc2_b = zero_weight((10,))
+params2 = [conv2_w, conv2_b, fc2_w, fc2_b]
+
 
 begin_time = time.time()
 for ep in range(start_epoch, start_epoch+args.epoch):

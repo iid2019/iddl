@@ -149,9 +149,9 @@ def train_part(model_fn, params, learning_rate, num_exit):
         
         # In this case, we determine the scores by 0.9*out0 + 0.09*out1 + 0.009*out2 + ...
         # mask = np.array([9 * 10 ** (-i - 1) for i in range(num_exit)])
-        mask = np.ones(num_exit)
-        scores = outputs.dot(mask)
-        
+        # mask = np.ones(num_exit)
+        scores = outputs.sum(axis = 0)
+
         loss = F.cross_entropy(scores, y) # this scores should be a weighted? or only the last exit?
 
         # Backward pass: PyTorch figures out which Tensors in the computational

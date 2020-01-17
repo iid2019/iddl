@@ -65,6 +65,7 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 # Model
 print('==> Building model..')
 net = ResNet_3exit()
+# net = ResNet18()
 net = net.to(device)
 
 print(net)
@@ -98,20 +99,27 @@ def train(epoch):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = net(inputs)
-        scores = outputs[2] # the final output dominates the baseline
+        #scores = outputs[2] # the final output dominates the baseline
         
-        loss = criterion(scores, targets)
+        loss = criterion(outputs[2], targets)
         loss.backward(retain_graph = True)
         optimizer.step()
+        
         
         outputs[0] = e1_Net(outputs[0], params1) # the outputs of the exits branches
         outputs[1] = e2_Net(outputs[1], params2)
         
         loss1 = F.cross_entropy(outputs[0], targets)
         loss1.backward(retain_graph = True)
+        #w1 = params1[0].clone()
         
         loss2 = F.cross_entropy(outputs[1], targets)
         loss2.backward()
+        #w1_ = params1[0].clone()
+        
+        #if not torch.eq(w1, w1_).all():
+        #    print("Changed!")
+        #    return 1
         
         with torch.no_grad():
             for w in params1 + params2:
@@ -124,7 +132,10 @@ def train(epoch):
         for i in range(num_exit):
                 _, predicted = outputs[i].max(1)
                 correct[i] += predicted.eq(targets).sum().item()
-            
+        
+        #_, predicted = outputs[2].max(1)
+        #correct[0] += predicted.eq(targets).sum().item()
+        
         total += targets.size(0)
         
         msg = ''
@@ -209,30 +220,6 @@ def e2_Net(exit2, params):
     exit2 = F.relu(F.conv2d(exit2, conv2_w, conv2_b, stride = 1, padding = 1))
     exit2 = flatten(exit2).mm(fc2_w) + fc2_b
     return exit2
-    
-#def train_exit(exit1, exit2):    
-    '''
-    conv1_e = nn.Conv2d(128, 32, kernel_size = 3, stride = 1, padding = 1, bias = False)
-    self.bn1_e = nn.BatchNorm2d(32)
-    self.relu1 = nn.ReLU(inplace = True)
-        self.linear1 = nn.Linear(32 * 16 * 16, num_classes)
-        self.conv2_e = nn.Conv2d(256, 32, kernel_size = 3, stride = 1, padding = 1, bias = False)
-        self.bn2_e = nn.BatchNorm2d(32)
-        self.relu2 = nn.ReLU(inplace = True)
-        self.linear2 = nn.Linear(32 * 8 * 8, num_classes)
-    exit_1 = self.relu1(self.bn1_e(self.conv1_e(out)))
-    # 128, 32, 16, 16
-    exit_1 = exit_1.view(exit_1.size(0), -1)
-    exit_1 = self.linear1(exit_1)
-    
-    exit_2 = self.relu2(self.bn2_e(self.conv2_e(out)))
-    # 128, 32, 8, 8
-    exit_2 = exit_2.view(exit_2.size(0), -1)
-    exit_2 = self.linear2(exit_2)
-    '''
-    
-    # train
-
     
 # initialization
 conv1_w = random_weight((32, 128, 3, 3))

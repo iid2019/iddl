@@ -64,7 +64,7 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 # Model
 print('==> Building model..')
 # net = VGG('VGG19')
-# net = ResNet18()
+net = ResNet18()
 # net = BResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
@@ -80,7 +80,7 @@ print('==> Building model..')
 # net = ResNeXt29_2x64d_bibd()
 # net = ResNet_gc()
 # net = ResNet_bibd_gc() # If you want to run with groups = t, change the code of line 192 in bibd_layer.py with in Groups = t.
-net = ResNet_3exit()
+# net = ResNet_3exit()
 net = net.to(device)
 
 print(net)
@@ -109,78 +109,48 @@ def train(epoch):
     print('\nEpoch: %d' % epoch)
     net.train()
     train_loss = 0
-    correct = np.zeros(num_exit)
+    correct = 0
     total = 0
     for batch_idx, (inputs, targets) in enumerate(trainloader):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = net(inputs)
-        if type(outputs) == np.ndarray:
-            assert outputs.shape[0] == num_exit, 'Error: Check the parameter en!'
-            #mask = np.array([9 * 0.1 ** (num_exit - i) for i in range(num_exit)])
-            #scores = outputs.dot(mask)
-            scores = 0.9 * outputs[2] + 0.09 * outputs[1] + 0.009 * outputs[0]
-            
-        else:
-            assert  num_exit == 1, 'Error: Check the parameter en!'
-            scores = outputs
-        # if batch_idx == 1:
-        #     print ('scores.size:', scores.size())
-        
-        loss = criterion(scores, targets)
+        loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()
 
         train_loss += loss.item()
-        
-        if num_exit == 1:
-            _, predicted = outputs.max(1)
-            correct[0] += predicted.eq(targets).sum().item()
-        else:
-            for i in range(num_exit):
-                _, predicted = outputs[i].max(1)
-                correct[i] += predicted.eq(targets).sum().item()
-            
+        _, predicted = outputs.max(1)
         total += targets.size(0)
-        
-        msg = 'Loss: %.2f' % (train_loss / (batch_idx + 1))
-        for i in range(num_exit):
-            msg = msg + '| Ex%d: %.2f%%' % (i + 1, 100. * correct[i] / total)
+        correct += predicted.eq(targets).sum().item()
 
-        progress_bar(batch_idx, len(trainloader), msg)
-
+        progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+            % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
 def test(epoch):
     global best_acc
     net.eval()
     test_loss = 0
-    correct = np.zeros(num_exit)
+    correct = 0
     total = 0
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = net(inputs)
-            scores = outputs.sum(axis = 0)
-            
-            if num_exit == 1:
-                _, predicted = outputs.max(1)
-                correct[0] += predicted.eq(targets).sum().item()
-            else:
-                for i in range(num_exit):
-                    _, predicted = outputs[i].max(1)
-                    correct[i] += predicted.eq(targets).sum().item()
-                
+            loss = criterion(outputs, targets)
+
+            test_loss += loss.item()
+            _, predicted = outputs.max(1)
             total += targets.size(0)
-         
-        msg = ''
-        for i in range(num_exit):
-            msg = msg + '| Ex%d Acc: %.2f%%' % (i + 1, 100. * correct[i] / total)
-        print(msg)
-        
-    # Save checkpoint
-    acc = 100.0 * correct[num_exit-1] / total
+            correct += predicted.eq(targets).sum().item()
+
+            progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
+
+    # Save checkpoint.
+    acc = 100.*correct/total
     if acc > best_acc:
-        print('Saving...')
+        print('Saving..')
         state = {
             'net': net.state_dict(),
             'acc': acc,

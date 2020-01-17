@@ -105,11 +105,11 @@ class ResNet(nn.Module):
 
         out = self.layer1(out)
         out = self.layer2(out)
-        exit_1 = out
+        exit_1 = out.clone()
         
         out = self.layer3(out)
 
-        exit_2 = out
+        exit_2 = out.clone()
         
         out = self.layer4(out)
         out = F.avg_pool2d(out, 4)

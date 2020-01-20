@@ -31,9 +31,20 @@ The experiments are performed under combinations of the following three settings
 
 #### Sparsification
 
-- No sparsification
-- BIBD
-- Random sparsification
+- _Linear layers_
+
+    - No sparsification
+    - BIBD
+    - Random sparsification
+
+- _Convolutional layers_
+
+    Depthwise sparsification (channel)
+    
+    - No sparsification
+    - BIBD
+    - Random sparsification
+    - Grouped convolution
 
 #### Vertical
 

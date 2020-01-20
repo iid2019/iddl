@@ -27,6 +27,8 @@ You can check the live Jupyter Notebook here: [mlp_bibd_experiments.ipynb](https
 
 ### Settings
 
+The experiments are performed under combinations of the following three settings, which are **orthogonal** to each other.
+
 #### Sparsification
 
 - No sparsification

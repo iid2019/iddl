@@ -10,6 +10,7 @@ import torchvision.transforms as transforms
 
 import os
 import argparse
+import matplotlib.pyplot as plt
 
 from models import *
 from utils import progress_bar
@@ -68,8 +69,8 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 
 # Model
 print('==> Building model..')
-# net = ResNet_3exit()
-net = ResNet_e_B() # ResNet with the early exit and BIBD
+net = ResNet_3exit()
+#net = ResNet_e_B() # ResNet with the early exit and BIBD
 net = net.to(device)
 
 print(net)
@@ -92,7 +93,6 @@ if args.resume:
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-plotter = LossAccPlotter()
 
 def train(epoch, records):
     print('\nEpoch: %d' % epoch)
@@ -111,11 +111,11 @@ def train(epoch, records):
         outputs[0] = e1_Net(outputs[0], params1) # the outputs of the exits branches
         outputs[1] = e2_Net(outputs[1], params2)
         
-        loss1 = F.cross_entropy(outputs[0], targets)
-        loss1.backward(retain_graph = True)
+        loss0 = F.cross_entropy(outputs[0], targets)
+        loss0.backward(retain_graph = True)
         
-        loss2 = F.cross_entropy(outputs[1], targets)
-        loss2.backward()
+        loss1 = F.cross_entropy(outputs[1], targets)
+        loss1.backward()
         
         with torch.no_grad():
             for w in params1 + params2:
@@ -136,8 +136,9 @@ def train(epoch, records):
 
         progress_bar(batch_idx, len(trainloader), msg)
         
-        records[0] = loss.data.tolist()
-        records[1] = correct[2]/total
+        # record the result
+    records += [[loss.data.tolist(), correct[2]/total, loss0.data.tolist(), correct[0]/total, loss1.data.tolist(), correct[1]/total]]
+        
 
 def test(epoch, records):
     global best_acc
@@ -154,6 +155,8 @@ def test(epoch, records):
             outputs[1] = e2_Net(outputs[1], params2)
             
             loss = criterion(outputs[2], targets)
+            loss0 = criterion(outputs[0], targets)
+            loss1 = criterion(outputs[1], targets)
             
             for i in range(num_exit):
                 _, predicted = outputs[i].max(1)
@@ -180,10 +183,8 @@ def test(epoch, records):
         torch.save(state, './checkpoint/ckpt.pth')
         best_acc = acc
         
-    records[0] = loss.data.tolist()
-    records[1] = acc
-        
-    
+    # record the result
+    records += [[loss.data.tolist(), correct[2]/total, loss0.data.tolist(), correct[0]/total, loss1.data.tolist(), correct[1]/total]]
         
 def flatten(x):
     N = x.shape[0] # read in N, C, H, W
@@ -222,6 +223,14 @@ def e2_Net(exit2, params):
     exit2 = F.relu(F.conv2d(exit2, conv2_w, conv2_b, stride = 1, padding = 1))
     exit2 = flatten(exit2).mm(fc2_w) + fc2_b
     return exit2
+
+def plot_3_exit(records):
+    # records: the result of three exits  size: epoch x 3
+    
+    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(24, 8))
+    e1_c = 'm'
+    e2_c = 'r'
+    e3_c = 'gold'
     
 # initialization
 conv1_w = random_weight((32, 128, 3, 3))
@@ -244,14 +253,13 @@ plotter = LossAccPlotter(title="ResNet with three exits and BIBD",
                          show_acc_plot=True,
                          show_plot_window=True,
                          x_label="Epoch")
-
-loss_train = None
-acc_train = None
-loss_val = None
-acc_val = None
+train_records = [] # train_records[i]: the training loss and accuracy of ith exit
+test_records = []
 
 begin_time = time.time()
 for ep in range(start_epoch, start_epoch+args.epoch):
+    '''
+    # only plot result of the main exit
     train_records = [0, 0]
     test_records = [0, 0]
     train(ep, train_records)
@@ -259,8 +267,21 @@ for ep in range(start_epoch, start_epoch+args.epoch):
     plotter.add_values(ep,
                        loss_train=train_records[0], acc_train=train_records[1],
                        loss_val=test_records[0], acc_val=test_records[1], redraw = False)
+    '''
+    
+    # record the results of all three exits
+    train(ep, train_records)
+    test(ep, test_records)
     
 end_time = time.time()
 print('Total time usage: {}'.format(format_time(end_time - begin_time)))
+train_records = np.array(train_records)
+test_records = np.array(test_records)
+np.savetxt("./results/train_e.csv", train_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/test_e.csv", test_records, fmt = '%.3e', delimiter = ",")
+
+'''
+# only plot result of the main exit
 plotter.redraw()
 plotter.block()
+'''

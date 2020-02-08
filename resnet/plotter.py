@@ -41,7 +41,6 @@ class Plotter(object):
         assert save_to_filepath is not None or show_plot_window
 
         self.title = title
-        self.title_fontsize = 17
         self.show_loss_plot = show_loss_plot
         self.show_acc_plot = show_acc_plot
         self.show_plot_window = show_plot_window
@@ -113,13 +112,13 @@ class Plotter(object):
         
         ax1.legend(loc="upper center",
                        bbox_to_anchor=(0.5, -0.08),
-                       ncol=2)
+                       ncol=2, fontsize = 19)
         
         ax2.legend(loc="upper center",
                        bbox_to_anchor=(0.5, -0.08),
-                       ncol=2)
+                       ncol=2, fontsize = 19)
         
-        fig.suptitle(self.title)
+        fig.suptitle(self.title, fontsize = 23)
         plt.draw()
 
         # save the redrawn plot to a file upon every redraw.

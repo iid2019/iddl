@@ -28,6 +28,7 @@ parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 parser.add_argument('--en', default=1, type=int, help='the number of the exits')
 parser.add_argument('--epoch', default=30, type=int, help='the number of the exits')
+parser.add_argument('--file', default=1, type=int, help='the name of the file the data saved')
 args = parser.parse_args()
 num_exit = args.en
 
@@ -64,8 +65,8 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 # Model
 print('==> Building model..')
 # net = VGG('VGG19')
-net = ResNet18()
-# net = BResNet18()
+# net = ResNet18()
+net = BResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
 # net = DenseNet121()
@@ -105,7 +106,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
 
 
-def train(epoch):
+def train(epoch, records):
     print('\nEpoch: %d' % epoch)
     net.train()
     train_loss = 0
@@ -126,8 +127,10 @@ def train(epoch):
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+        
+    records += [[loss.data.tolist(), correct/total]]
 
-def test(epoch):
+def test(epoch, records):
     global best_acc
     net.eval()
     test_loss = 0
@@ -160,10 +163,23 @@ def test(epoch):
             os.mkdir('checkpoint')
         torch.save(state, './checkpoint/ckpt.pth')
         best_acc = acc
+    records += [[loss.data.tolist(), correct/total]]
 
+train_records = [] # train_records[i]: the training loss and accuracy of ith exit
+test_records = []    
+    
 begin_time = time.time()
 for ep in range(start_epoch, start_epoch+args.epoch):
-    train(ep)
-    test(ep)
+    # record the results of all three exits
+    train(ep, train_records)
+    test(ep, test_records)
+    
 end_time = time.time()
 print('Total time usage: {}'.format(format_time(end_time - begin_time)))
+
+train_records = np.array(train_records)
+test_records = np.array(test_records)
+#test_time = np.array(test_time)
+np.savetxt("./results/train_B_"+str(args.file)+".csv", train_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/test_B_"+str(args.file)+".csv", test_records, fmt = '%.3e', delimiter = ",")
+#np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")

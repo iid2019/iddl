@@ -82,6 +82,7 @@ See [setup.md](./setup.md)
 | resnet18_bibd_gc2 | cifar10 | 30 | (total) 33m20s | 86.86% | | |
 | resnet18_gc4 | cifar10 | 30 | (total) 23m30s | 88.38% | | |
 | resnet18_bibd_gc4 | cifar10| 30 | (total) 33m23s | 87.35% | | |
+| resnet18 + vertical partitioning | cifar10 | 30 | (total) 22m35s | 83.830% |  |  |
 | resnet18 + vertical partitioning + ensemble learning | cifar10 | 30 | (total) 23m6s | 84.540% |  |  |
 
 Hardware info:

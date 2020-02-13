@@ -33,6 +33,7 @@ parser.add_argument('--lr', default=0.01, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 parser.add_argument('--en', default=3, type=int, help='the number of the exits')
 parser.add_argument('--epoch', default=30, type=int, help='the number of the exits')
+parser.add_argument('--file', default=1, type=int, help='the name of the file the data saved')
 args = parser.parse_args()
 num_exit = args.en
 
@@ -70,7 +71,7 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 # Model
 print('==> Building model..')
 net = ResNet_3exit()
-#net = ResNet_e_B() # ResNet with the early exit and BIBD
+# net = ResNet_e_B() # ResNet with the early exit and BIBD
 net = net.to(device)
 
 print(net)
@@ -140,19 +141,22 @@ def train(epoch, records):
     records += [[loss.data.tolist(), correct[2]/total, loss0.data.tolist(), correct[0]/total, loss1.data.tolist(), correct[1]/total]]
         
 
-def test(epoch, records):
+def test(epoch, records, test_time):
     global best_acc
     net.eval()
     test_loss = 0
     correct = np.zeros(num_exit)
     total = 0
-    
+    #time_ = time.time()
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = net(inputs)
+            #time_0 = time.time()
             outputs[0] = e1_Net(outputs[0], params1)
+            #time_1 = time.time()
             outputs[1] = e2_Net(outputs[1], params2)
+            #time_2 = time.time()
             
             loss = criterion(outputs[2], targets)
             loss0 = criterion(outputs[0], targets)
@@ -185,6 +189,7 @@ def test(epoch, records):
         
     # record the result
     records += [[loss.data.tolist(), correct[2]/total, loss0.data.tolist(), correct[0]/total, loss1.data.tolist(), correct[1]/total]]
+    #test_time += [[(time_0 - time_) * 1000, (time_1 - time_) * 1000, (time_2 - time_) * 1000]]
         
 def flatten(x):
     N = x.shape[0] # read in N, C, H, W
@@ -223,14 +228,6 @@ def e2_Net(exit2, params):
     exit2 = F.relu(F.conv2d(exit2, conv2_w, conv2_b, stride = 1, padding = 1))
     exit2 = flatten(exit2).mm(fc2_w) + fc2_b
     return exit2
-
-def plot_3_exit(records):
-    # records: the result of three exits  size: epoch x 3
-    
-    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(24, 8))
-    e1_c = 'm'
-    e2_c = 'r'
-    e3_c = 'gold'
     
 # initialization
 conv1_w = random_weight((32, 128, 3, 3))
@@ -245,43 +242,23 @@ fc2_w = random_weight((32*8*8, 10))
 fc2_b = zero_weight((10,))
 params2 = [conv2_w, conv2_b, fc2_w, fc2_b]
 
-plotter = LossAccPlotter(title="ResNet with three exits and BIBD",
-                         save_to_filepath="ResNet_exits_BIBD.png",
-                         show_regressions=False,
-                         show_averages=True,
-                         show_loss_plot=True,
-                         show_acc_plot=True,
-                         show_plot_window=True,
-                         x_label="Epoch")
 train_records = [] # train_records[i]: the training loss and accuracy of ith exit
 test_records = []
+test_time = [] # the inference time
 
 begin_time = time.time()
 for ep in range(start_epoch, start_epoch+args.epoch):
-    '''
-    # only plot result of the main exit
-    train_records = [0, 0]
-    test_records = [0, 0]
-    train(ep, train_records)
-    test(ep, test_records)
-    plotter.add_values(ep,
-                       loss_train=train_records[0], acc_train=train_records[1],
-                       loss_val=test_records[0], acc_val=test_records[1], redraw = False)
-    '''
-    
     # record the results of all three exits
     train(ep, train_records)
-    test(ep, test_records)
+    test(ep, test_records, test_time)
     
 end_time = time.time()
 print('Total time usage: {}'.format(format_time(end_time - begin_time)))
+
 train_records = np.array(train_records)
 test_records = np.array(test_records)
-np.savetxt("./results/train_e.csv", train_records, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/test_e.csv", test_records, fmt = '%.3e', delimiter = ",")
+#test_time = np.array(test_time)
+np.savetxt("./results/train_e_"+str(args.file)+".csv", train_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/test_e_"+str(args.file)+".csv", test_records, fmt = '%.3e', delimiter = ",")
+#np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")
 
-'''
-# only plot result of the main exit
-plotter.redraw()
-plotter.block()
-'''

@@ -41,7 +41,6 @@ class Plotter(object):
         assert save_to_filepath is not None or show_plot_window
 
         self.title = title
-        self.title_fontsize = 17
         self.show_loss_plot = show_loss_plot
         self.show_acc_plot = show_acc_plot
         self.show_plot_window = show_plot_window
@@ -98,28 +97,40 @@ class Plotter(object):
         # plot the loss
         for i in range(num):
             color = self.colors["train_"+str(i)]
-            ax1.plot(index, loss_train[i], c = tuple(x / 255 for x in color), label = "training loss of exit "+str(i))
+            if num == 1:
+                ax1.plot(index, loss_train[i], c = tuple(x / 255 for x in color), label = "training loss")
+            else:
+                ax1.plot(index, loss_train[i], c = tuple(x / 255 for x in color), label = "training loss of exit "+str(i))
         for i in range(num):
             color = self.colors["test_"+str(i)]
-            ax1.plot(index, loss_test[i], c = tuple(x / 255 for x in color), label = "  testing loss of exit "+str(i))
+            if num == 1:
+                ax1.plot(index, loss_train[i], c = tuple(x / 255 for x in color), label = "testing loss")
+            else:
+                ax1.plot(index, loss_test[i], c = tuple(x / 255 for x in color), label = "  testing loss of exit "+str(i))
         
         # plot the acc
         for i in range(num):
             color = self.colors["train_"+str(i)]
-            ax2.plot(index, acc_train[i], c = tuple(x / 255 for x in color), label = "training accuracy of exit "+str(i))
+            if num == 1:
+                ax2.plot(index, acc_train[i], c = tuple(x / 255 for x in color), label = "training accuracy")
+            else:
+                ax2.plot(index, acc_train[i], c = tuple(x / 255 for x in color), label = "training accuracy of exit"+str(i))
         for i in range(num):
             color = self.colors["test_"+str(i)]
-            ax2.plot(index, acc_test[i], c = tuple(x / 255 for x in color), label = "testing accuracy of exit "+str(i))
+            if num == 1:
+                ax2.plot(index, acc_train[i], c = tuple(x / 255 for x in color), label = "testing accuracy")
+            else:
+                ax2.plot(index, acc_test[i], c = tuple(x / 255 for x in color), label = "testing accuracy of exit "+str(i))
         
         ax1.legend(loc="upper center",
                        bbox_to_anchor=(0.5, -0.08),
-                       ncol=2)
+                       ncol=2, fontsize = 19)
         
         ax2.legend(loc="upper center",
                        bbox_to_anchor=(0.5, -0.08),
-                       ncol=2)
+                       ncol=2, fontsize = 19)
         
-        fig.suptitle(self.title)
+        fig.suptitle(self.title, fontsize = 23)
         plt.draw()
 
         # save the redrawn plot to a file upon every redraw.

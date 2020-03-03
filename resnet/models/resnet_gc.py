@@ -116,7 +116,7 @@ def ResNet_gc():
     return ResNet(BasicBlock, [2,2,2,2])
 
 def test():
-    net = ResNet_g_c()
+    net = ResNet_gc()
     y = net(torch.randn(1,3,32,32))
     print(y.size())
 

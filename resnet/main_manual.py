@@ -20,6 +20,7 @@ from models.resnet_gc import *
 from models.resnet_bibd_gc import *
 from models.resnet_exit import *
 from models.resnet_exit_BIBD import *
+from models.resnet_exit_gc import *
 
 import time
 import numpy as np
@@ -70,7 +71,7 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 
 # Model
 print('==> Building model..')
-net = ResNet_3exit()
+net = ResNet_exit_gc()
 # net = ResNet_e_B() # ResNet with the early exit and BIBD
 net = net.to(device)
 
@@ -106,11 +107,14 @@ def train(epoch, records):
         outputs = net(inputs)
         
         loss = criterion(outputs[2], targets)
+        # loss.backward(retain_graph = True)
         loss.backward(retain_graph = True)
         optimizer.step()
         
         outputs[0] = e1_Net(outputs[0], params1) # the outputs of the exits branches
         outputs[1] = e2_Net(outputs[1], params2)
+        
+        # add comment to check the main exit accuracy
         
         loss0 = F.cross_entropy(outputs[0], targets)
         loss0.backward(retain_graph = True)
@@ -124,7 +128,7 @@ def train(epoch, records):
 
                 # Manually zero the gradients after running the backward pass
                 w.grad.zero_()
-        
+
         for i in range(num_exit):
                 _, predicted = outputs[i].max(1)
                 correct[i] += predicted.eq(targets).sum().item()
@@ -258,7 +262,7 @@ print('Total time usage: {}'.format(format_time(end_time - begin_time)))
 train_records = np.array(train_records)
 test_records = np.array(test_records)
 #test_time = np.array(test_time)
-np.savetxt("./results/train_e_"+str(args.file)+".csv", train_records, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/test_e_"+str(args.file)+".csv", test_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/train_exit_gc_"+str(args.file)+".csv", train_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/test_exit_gc_"+str(args.file)+".csv", test_records, fmt = '%.3e', delimiter = ",")
 #np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")
 

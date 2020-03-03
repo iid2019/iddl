@@ -24,7 +24,7 @@ import numpy as np
 
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
-parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
+parser.add_argument('--lr', default=0.01, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 parser.add_argument('--en', default=1, type=int, help='the number of the exits')
 parser.add_argument('--epoch', default=30, type=int, help='the number of the exits')
@@ -80,7 +80,7 @@ net = BResNet18()
 # net = EfficientNetB0()
 # net = ResNeXt29_2x64d_bibd()
 # net = ResNet_gc()
-# net = ResNet_bibd_gc() # If you want to run with groups = t, change the code of line 192 in bibd_layer.py with in Groups = t.
+# net = ResNet_bibd_gc()
 # net = ResNet_3exit()
 net = net.to(device)
 
@@ -116,6 +116,7 @@ def train(epoch, records):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = net(inputs)
+        outputs = outputs
         loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()
@@ -140,6 +141,7 @@ def test(epoch, records):
         for batch_idx, (inputs, targets) in enumerate(testloader):
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = net(inputs)
+            outputs = outputs
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()

@@ -21,13 +21,11 @@ from models.resnet_bibd_gc import *
 from models.resnet_exit import *
 from models.resnet_exit_BIBD import *
 from models.resnet_exit_gc import *
+from models.resnet_ENS_EE import *
+from models.resnet_ENS_BIBD_EE import *
 
 import time
 import numpy as np
-
-sys.path.append('../LossAccPlotter')
-from laplotter import LossAccPlotter
-
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.01, type=float, help='learning rate')
@@ -71,7 +69,7 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 
 # Model
 print('==> Building model..')
-net = ResNet_exit_gc()
+net = ResNet_ENS_BIBD_EE()
 # net = ResNet_e_B() # ResNet with the early exit and BIBD
 net = net.to(device)
 
@@ -262,7 +260,7 @@ print('Total time usage: {}'.format(format_time(end_time - begin_time)))
 train_records = np.array(train_records)
 test_records = np.array(test_records)
 #test_time = np.array(test_time)
-np.savetxt("./results/train_exit_gc_"+str(args.file)+".csv", train_records, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/test_exit_gc_"+str(args.file)+".csv", test_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/ENS_BIBD_EE/train_ENS_BIBD_EE_"+str(args.file)+".csv", train_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/ENS_BIBD_EE/test_ENS_BIBD_EE_"+str(args.file)+".csv", test_records, fmt = '%.3e', delimiter = ",")
 #np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")
 

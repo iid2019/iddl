@@ -21,9 +21,9 @@ class BBasicBlock(nn.Module):
 
     def __init__(self, in_planes, planes, stride=1):
         super(BBasicBlock, self).__init__()
-        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1)
+        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, groups=4)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1)
+        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1, groups=4)
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
@@ -121,7 +121,7 @@ class ResNet(nn.Module):
         return np.array([exit_1, exit_2, out]) 
 
 
-def ResNet_e_B():
+def ResNet_BIBD_EE_GC():
     return ResNet(BBasicBlock, [2,2,2,2])
 
 def test():

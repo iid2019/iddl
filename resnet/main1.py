@@ -18,6 +18,9 @@ from models.resnet_bibd import *
 from models.resnet_gc import *
 from models.resnet_bibd_gc import *
 from models.resnet_exit import *
+from models.resnet_ENS_BIBD import *
+from models.resnet_bibd_gc import *
+from models.resnet_GC_ENS_BIBD import *
 
 import time
 import numpy as np
@@ -65,8 +68,8 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 # Model
 print('==> Building model..')
 # net = VGG('VGG19')
-net = ResNet18()
-# net = BResNet18()
+# net = ResNet18()
+net = GEBResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
 # net = DenseNet121()
@@ -182,6 +185,6 @@ print('Total time usage: {}'.format(format_time(end_time - begin_time)))
 train_records = np.array(train_records)
 test_records = np.array(test_records)
 #test_time = np.array(test_time)
-np.savetxt("./results/train_"+str(args.file)+".csv", train_records, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/test_"+str(args.file)+".csv", test_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/BIBD_GC_ENS/train_BIBD_GC_ENS_"+str(args.file)+".csv", train_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/BIBD_GC_ENS/test_BIBD_GC_ENS_"+str(args.file)+".csv", test_records, fmt = '%.3e', delimiter = ",")
 #np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")

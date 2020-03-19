@@ -69,6 +69,12 @@ $ pip install thop
 $ conda install networkx
 ```
 
+### Install `skorch`
+
+```shell
+$ conda install -c conda-forge skorch
+```
+
 ## Start `jupyterlab`
 
 ```shell

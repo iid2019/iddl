@@ -36,8 +36,7 @@ class BasicBlock(nn.Module):
 
 class ResNet(nn.Module):
     # The number of partitions
-    # num_partition = 4
-    num_partition = 8
+    num_partition = 4
     
     
     def __init__(self, block, num_blocks, num_classes=10):

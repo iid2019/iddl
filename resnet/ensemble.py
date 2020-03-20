@@ -24,6 +24,7 @@ class AdaBoostClassifier():
         self.__sample_weight_array = np.repeat(1/n, n)
 
         for i in range(classifier_num):
+            print('Training hypothesis {}...'.format(i + 1))
             trained_classifier = self.__base_classifier(dataloader, self.__sample_weight_array)
             self.__base_classifier_list.append(trained_classifier)
             error = 0
@@ -46,13 +47,15 @@ class AdaBoostClassifier():
                 if predicted.eq(y.data).cpu().sum():
                     self.__sample_weight_array[index] *= (1 - error) / error
 
-            print('error = {}'.format(error))
+            print('    error: {}'.format(error))
 
             # Normalize the sample weight array
             self.__sample_weight_array / self.__sample_weight_array.sum(0)
 
             # Calculate the weight for the current hypothesis
-            self.__weight_list.append(np.log((1 - error)/error))
+            weight = np.log((1 - error)/error)
+            print('    weight: {}'.format(weight))
+            self.__weight_list.append(weight)
             
 
         return

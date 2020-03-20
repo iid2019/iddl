@@ -68,7 +68,7 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
             optimizer.step()
         
         if batch_index % log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            print('    Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_index * len(data), len(dataloader.dataset),
                 100. * batch_index / len(dataloader), loss.data.item()))
 

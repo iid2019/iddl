@@ -28,10 +28,14 @@ class AdaBoostClassifier():
             self.__base_classifier_list.append(trained_classifier)
             error = 0
             for index, (x, y) in enumerate(dataloader):
+                # TODO: The logic here should stay outside of this class
+                x = x.to('cuda')
+                y = y.to('cuda')
+
                 output = trained_classifier(x)
                 predicted = output.data.max(1)[1]
-                if predicted.eq(y.data).cpu().sum():
-                    error += self.__sample_weight[index]
+                if not predicted.eq(y.data).cpu().sum():
+                    error += self.__sample_weight_array[index]
             for index, (x, y) in enumerate(dataloader):
                 # TODO: The logic here should stay outside of this class
                 x = x.to('cuda')
@@ -40,7 +44,7 @@ class AdaBoostClassifier():
                 output = self.__base_classifier_list[-1](x)
                 predicted = output.data.max(1)[1]
                 if predicted.eq(y.data).cpu().sum():
-                    self.__sample_weight[index] *= (1 - error) / error
+                    self.__sample_weight_array[index] *= (1 - error) / error
 
             print('error = {}'.format(error))
 

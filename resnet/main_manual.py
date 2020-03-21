@@ -10,7 +10,6 @@ import torchvision.transforms as transforms
 
 import os
 import argparse
-import matplotlib.pyplot as plt
 
 from models import *
 from utils import progress_bar

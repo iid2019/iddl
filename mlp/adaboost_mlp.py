@@ -1,6 +1,7 @@
 
 import sys
 sys.path.append('../resnet')
+sys.path.append('../util')
 from ensemble import AdaBoostClassifier
 from models import Mlp
 import torch
@@ -8,12 +9,16 @@ import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 import math
+import time
+from time_utils import format_time
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def mlpClassifier(dataloader, sample_weight_array, log_interval=200):
+    begin = time.time()
+
     # Create the net
     input_dim = 28 * 28 * 1
     output_dim = 10
@@ -26,14 +31,17 @@ def mlpClassifier(dataloader, sample_weight_array, log_interval=200):
     optimizer = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.5)
     criterion = nn.CrossEntropyLoss()
 
-    n_epoch = 1
+    n_epoch = 2
     for epoch in range(1, n_epoch + 1):
         train(net, optimizer, criterion, dataloader, sample_weight_array, epoch, log_interval=100)
-    sys.stdout.write('\n')
-    sys.stdout.flush()
+        sys.stdout.write('\n')
+        sys.stdout.flush()
 
     # Set net to evaluation mode
     net.eval()
+
+    end = time.time()
+    print('    MlpClassifier trained in {}.'.format(format_time(end - begin)))
 
     return net
 

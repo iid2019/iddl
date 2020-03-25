@@ -6,6 +6,7 @@ Currently implemented:
 '''
 import numpy as np
 import operator
+import math
 
 
 class AdaBoostClassifier():
@@ -48,18 +49,17 @@ class AdaBoostClassifier():
                 output = self.__base_classifier_list[-1](x)
                 predicted = output.data.max(1)[1]
                 if predicted.eq(y.data).cpu().sum():
-                    # TODO: Make 10 as a parameter
-                    # self.__sample_weight_array[index] *= (1 - error) / error
-                    self.__sample_weight_array[index] = math.log((1 - error) / error) + math.log(10 - 1)
+                    self.__sample_weight_array[index] *= (1 - error) / error
 
-            print('    error: {}'.format(error))
+            print('    Error: {}'.format(error))
 
             # Normalize the sample weight array
             self.__sample_weight_array /= self.__sample_weight_array.sum()
 
             # Calculate the weight for the current hypothesis
-            weight = np.log((1 - error)/error)
-            print('    weight: {}'.format(weight))
+            # TODO: Make 10 as a parameter
+            weight = math.log((1 - error)/error) + math.log(10 - 1)
+            print('    Weight: {}'.format(weight))
             self.__weight_list.append(weight)
             
 

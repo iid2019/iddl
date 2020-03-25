@@ -30,6 +30,7 @@ def mlpClassifier(dataloader, sample_weight_array, log_interval=200):
     for epoch in range(1, n_epoch + 1):
         train(net, optimizer, criterion, dataloader, sample_weight_array, epoch, log_interval=100)
     sys.stdout.write('\n')
+    sys.stdout.flush()
 
     # Set net to evaluation mode
     net.eval()
@@ -86,12 +87,12 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
         # Update weights
         optimizer.step()
         
-        if batch_index % log_interval == 0:
+        if (batch_index + 1) % log_interval == 0:
             sys.stdout.write('\r')
             sys.stdout.flush()
             print('    Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_index * len(data), len(dataloader.dataset),
-                100. * batch_index / len(dataloader), loss.data.item()), end='')
+                epoch, (batch_index + 1) * len(data), len(dataloader.dataset),
+                100. * (batch_index + 1) / len(dataloader), loss.data.item()), end='')
 
 
 trainset = torchvision.datasets.MNIST('./data', train=True, download=True, transform=transforms.ToTensor())
@@ -124,9 +125,9 @@ trainloader = torch.utils.data.DataLoader(dataset=trainset, shuffle=False)
 classifier = AdaBoostClassifier(mlpClassifier)
 classifier.train(trainloader, classifier_num=3)
 
-test_transform = datasets.MNIST('./data', train=False, transform=transforms.ToTensor())
-test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=test_transform)
-test_dataloader = torch.utils.data.DataLoader(testset, shuffle=False, num_workers=2)
+test_transform = torchvision.datasets.MNIST('./data', train=False, transform=transforms.ToTensor())
+test_dataset = torchvision.datasets.MNIST(root='./data', train=False, download=True, transform=test_transform)
+test_dataloader = torch.utils.data.DataLoader(test_dataset, shuffle=False, num_workers=2)
 
 val_loss, correct = 0, 0
 criterion = nn.CrossEntropyLoss()

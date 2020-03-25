@@ -1,6 +1,8 @@
 '''
-Classes associated with ensemble learning. Currently implemented:
-- AdaBoostClassifier: https://github.com/aimacode/aima-pseudocode/blob/master/md/AdaBoost.md
+Classes associated with ensemble learning.
+
+Currently implemented:
+- AdaBoostClassifier: http://ww.web.stanford.edu/~hastie/Papers/SII-2-3-A8-Zhu.pdf (Originally referred to: https://github.com/aimacode/aima-pseudocode/blob/master/md/AdaBoost.md)
 '''
 import numpy as np
 import operator
@@ -46,7 +48,9 @@ class AdaBoostClassifier():
                 output = self.__base_classifier_list[-1](x)
                 predicted = output.data.max(1)[1]
                 if predicted.eq(y.data).cpu().sum():
-                    self.__sample_weight_array[index] *= (1 - error) / error
+                    # TODO: Make 10 as a parameter
+                    # self.__sample_weight_array[index] *= (1 - error) / error
+                    self.__sample_weight_array[index] = math.log((1 - error) / error) + math.log(10 - 1)
 
             print('    error: {}'.format(error))
 

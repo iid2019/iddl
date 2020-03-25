@@ -41,15 +41,15 @@ class AdaBoostClassifier():
                 predicted = output.data.max(1)[1]
                 if not predicted.eq(y.data).cpu().sum():
                     error += self.__sample_weight_array[index]
-            for index, (x, y) in enumerate(dataloader):
-                # TODO: The logic here should stay outside of this class
-                x = x.to('cuda')
-                y = y.to('cuda')
+            # for index, (x, y) in enumerate(dataloader):
+            #     # TODO: The logic here should stay outside of this class
+            #     x = x.to('cuda')
+            #     y = y.to('cuda')
 
-                output = self.__base_classifier_list[-1](x)
-                predicted = output.data.max(1)[1]
-                if predicted.eq(y.data).cpu().sum():
-                    self.__sample_weight_array[index] *= (1 - error) / error
+            #     output = self.__base_classifier_list[-1](x)
+            #     predicted = output.data.max(1)[1]
+            #     if predicted.eq(y.data).cpu().sum():
+            #         self.__sample_weight_array[index] *= (1 - error) / error
 
             print('    Error: {}'.format(error))
 

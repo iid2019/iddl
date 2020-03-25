@@ -133,9 +133,8 @@ trainloader = torch.utils.data.DataLoader(dataset=trainset, shuffle=False)
 classifier = AdaBoostClassifier(mlpClassifier)
 classifier.train(trainloader, classifier_num=3)
 
-test_transform = torchvision.datasets.MNIST('./data', train=False, transform=transforms.ToTensor())
-test_dataset = torchvision.datasets.MNIST(root='./data', train=False, download=True, transform=test_transform)
-test_dataloader = torch.utils.data.DataLoader(test_dataset, shuffle=False, num_workers=2)
+test_dataset = torchvision.datasets.MNIST(root='./data', train=False, download=True, transform=transforms.ToTensor())
+test_dataloader = torch.utils.data.DataLoader(test_dataset, shuffle=False)
 
 val_loss, correct = 0, 0
 criterion = nn.CrossEntropyLoss()

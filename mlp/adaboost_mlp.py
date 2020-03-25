@@ -28,7 +28,8 @@ def mlpClassifier(dataloader, sample_weight_array, log_interval=200):
 
     n_epoch = 1
     for epoch in range(1, n_epoch + 1):
-        train(net, optimizer, criterion, dataloader, sample_weight_array, epoch, log_interval=10000)
+        train(net, optimizer, criterion, dataloader, sample_weight_array, epoch, log_interval=100)
+    sys.stdout.write('\n')
 
     # Set net to evaluation mode
     net.eval()
@@ -70,7 +71,7 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
         
         # Zero gradient buffers
         optimizer.zero_grad() 
-                
+        
         # Pass data through the network
         output = model(data)
 
@@ -81,14 +82,16 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
 
         # Backpropagate
         loss.backward()
-            
+        
         # Update weights
         optimizer.step()
         
         if batch_index % log_interval == 0:
+            sys.stdout.write('\r')
+            sys.stdout.flush()
             print('    Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_index * len(data), len(dataloader.dataset),
-                100. * batch_index / len(dataloader), loss.data.item()))
+                100. * batch_index / len(dataloader), loss.data.item()), end='')
 
 
 trainset = torchvision.datasets.MNIST('./data', train=True, download=True, transform=transforms.ToTensor())

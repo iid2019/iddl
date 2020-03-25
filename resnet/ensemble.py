@@ -3,6 +3,7 @@ Classes associated with ensemble learning. Currently implemented:
 - AdaBoostClassifier: https://github.com/aimacode/aima-pseudocode/blob/master/md/AdaBoost.md
 '''
 import numpy as np
+import operator
 
 
 class AdaBoostClassifier():
@@ -62,4 +63,15 @@ class AdaBoostClassifier():
 
 
     def predict(self, input):
-        return
+        vote_dict = {}
+
+        for index, classifier in enumerate(self.__classifier_list):
+            output = classifier(input)
+            predicted = output.data.max(1)[1]
+            if vote_dict[predicted] is None:
+                vote_dict[predicted] = self.__weight_list[index]
+            else:
+                vote_dict[predicted] += self.__weight_list[index]
+        
+        # Calculate the predicted category with the maximum vote
+        return max(vote_dict.items(), key=operator.itemgetter(1))[0]

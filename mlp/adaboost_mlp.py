@@ -51,21 +51,39 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
         data = data.to(device)
         target = target.to(device)
 
-        for i in range(num_repeat):
-            # Zero gradient buffers
-            optimizer.zero_grad() 
+        # Too slow!
+        # for i in range(num_repeat):
+        #     # Zero gradient buffers
+        #     optimizer.zero_grad() 
                 
-            # Pass data through the network
-            output = model(data)
+        #     # Pass data through the network
+        #     output = model(data)
 
-            # Calculate loss
-            loss = criterion(output, target)
+        #     # Calculate loss
+        #     loss = criterion(output, target)
 
-            # Backpropagate
-            loss.backward()
+        #     # Backpropagate
+        #     loss.backward()
             
-            # Update weights
-            optimizer.step()
+        #     # Update weights
+        #     optimizer.step()
+        
+        # Zero gradient buffers
+        optimizer.zero_grad() 
+                
+        # Pass data through the network
+        output = model(data)
+
+        # Calculate loss
+        loss = criterion(output, target)
+
+        loss *= num_repeat
+
+        # Backpropagate
+        loss.backward()
+            
+        # Update weights
+        optimizer.step()
         
         if batch_index % log_interval == 0:
             print('    Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -101,4 +119,26 @@ trainloader = torch.utils.data.DataLoader(dataset=trainset, shuffle=False)
 # base_classifier = Mlp(input_dim, output_dim).to(device)
 # classifier = AdaBoostClassifier(base_classifier)
 classifier = AdaBoostClassifier(mlpClassifier)
-classifier.train(trainloader)
+classifier.train(trainloader, classifier_num=3)
+
+test_transform = datasets.MNIST('./data', train=False, transform=transforms.ToTensor())
+test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=test_transform)
+test_dataloader = torch.utils.data.DataLoader(testset, shuffle=False, num_workers=2)
+
+val_loss, correct = 0, 0
+criterion = nn.CrossEntropyLoss()
+for batch_index, (data, target) in enumerate(test_dataloader):
+    # Copy data to GPU if needed
+    data = data.to(device)
+    target = target.to(device)
+
+    output = classifier.predict(data)
+    val_loss += criterion(output, target).data.item()
+    predicted = output.data.max(1)[1] # Get the index of the max log-probability
+    correct += predicted.eq(target.data).cpu().sum()
+test_loss /= len(test_dataloader)
+
+accuracy = correct.to(torch.float32) / len(test_dataloader.dataset)
+        
+print('\nTest dataset: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+    test_loss, correct, len(test_dataloader.dataset), accuracy * 100.0))

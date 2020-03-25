@@ -51,7 +51,7 @@ class AdaBoostClassifier():
             print('    error: {}'.format(error))
 
             # Normalize the sample weight array
-            self.__sample_weight_array / self.__sample_weight_array.sum(0)
+            self.__sample_weight_array /= self.__sample_weight_array.sum()
 
             # Calculate the weight for the current hypothesis
             weight = np.log((1 - error)/error)

@@ -259,8 +259,14 @@ print('Total time usage: {}'.format(format_time(end_time - begin_time)))
 
 train_records = np.array(train_records)
 test_records = np.array(test_records)
+train_loss = train_records[:, [0,2,4]]
+train_acc = train_records[:, [1,3,5]]
+test_loss = test_records[:, [0,2,4]]
+test_acc = test_records[:, [1,3,5]]
 #test_time = np.array(test_time)
-np.savetxt("./results/BIBD_EE_GC/train_BIBD_EE_GC_"+str(args.file)+".csv", train_records, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/BIBD_EE_GC/test_BIBD_EE_GC_"+str(args.file)+".csv", test_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/GC_EE/train_loss_"+str(i + 1)+".csv", train_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/GC_EE/train_acc_"+str(i + 1)+".csv", train_acc, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/GC_EE/test_loss_"+str(i + 1)+".csv", test_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/GC_EE/test_acc_"+str(i + 1)+".csv", test_acc, fmt = '%.3e', delimiter = ",")
 #np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")
 

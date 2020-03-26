@@ -87,7 +87,7 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
         # Calculate loss
         loss = criterion(output, target)
 
-        loss *= num_repeat
+        # loss *= num_repeat
 
         # Backpropagate
         loss.backward()

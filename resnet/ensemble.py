@@ -77,11 +77,12 @@ class AdaBoostClassifier():
 
         for index, classifier in enumerate(self.__base_classifier_list):
             output = classifier(input)
-            predicted = output.data.max(1)[1]
-            if vote_dict[predicted] is None:
-                vote_dict[predicted] = self.__weight_list[index]
+            predicted = output.max(1)[1]
+            category = predicted[0].cpu().numpy().item()
+            if category in vote_dict:
+                vote_dict[category] += self.__weight_list[index]
             else:
-                vote_dict[predicted] += self.__weight_list[index]
+                vote_dict[category] = self.__weight_list[index]
         
         # Calculate the predicted category with the maximum vote
         return max(vote_dict.items(), key=operator.itemgetter(1))[0]

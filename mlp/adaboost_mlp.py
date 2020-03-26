@@ -87,6 +87,7 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
         # Calculate loss
         loss = criterion(output, target)
 
+        # Currently test the naive ensemble
         # loss *= num_repeat
 
         # Backpropagate
@@ -104,33 +105,9 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
 
 
 trainset = torchvision.datasets.MNIST('./data', train=True, download=True, transform=transforms.ToTensor())
-# trainloader = torch.utils.data.DataLoader(dataset=trainset, batch_size=32, shuffle=True)
 trainloader = torch.utils.data.DataLoader(dataset=trainset, shuffle=False)
 
-# print(len(trainloader))
-
-# train_data_list = []
-# train_labels_list = []
-# for batch_index, (inputs, targets) in enumerate(trainloader):
-#     # inputs, targets = inputs.to(device), targets.to(device)
-#     # print(batch_index)
-#     # print(inputs.shape)
-#     # print(targets.shape)
-
-#     train_data_list.append(inputs)
-#     train_labels_list.append(targets)
-# train_data = torch.cat(train_data_list, dim=0)
-# train_labels = torch.cat(train_labels_list, dim=0)
-# print(train_data.shape)
-# print(train_labels.shape)
-
-
-# for index, (x, y) in enumerate(zip(train_data, train_labels)):
-#     print(x, y)
-
-# base_classifier = Mlp(input_dim, output_dim).to(device)
-# classifier = AdaBoostClassifier(base_classifier)
-CLASSIFIER_NUM = 3
+CLASSIFIER_NUM = 9
 classifier = AdaBoostClassifier(mlpClassifier)
 classifier.train(trainloader, classifier_num=CLASSIFIER_NUM)
 
@@ -158,8 +135,8 @@ for i in range(CLASSIFIER_NUM):
         data = data.to(device)
         target = target.to(device)
 
-        category = classifier.predict(data)
+        category = classifier.predict_using_base_classifier(i, data)
         target_category = target.cpu().numpy().item()
         correct += 1 if category == target_category else 0
     accuracy = correct / len(test_dataloader.dataset)
-    print('\nTest dataset: Base classifier #{} accuracy: {}/{} ({:.0f}%)\n'.format(i, correct, len(test_dataloader.dataset), accuracy * 100.0))
+    print('Test dataset: Base classifier #{} accuracy: {}/{} ({:.0f}%)'.format(i, correct, len(test_dataloader.dataset), accuracy * 100.0))

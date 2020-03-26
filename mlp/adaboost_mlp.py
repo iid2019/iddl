@@ -31,7 +31,7 @@ def mlpClassifier(dataloader, sample_weight_array, log_interval=200):
     optimizer = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.5)
     criterion = nn.CrossEntropyLoss()
 
-    n_epoch = 2
+    n_epoch = 1
     for epoch in range(1, n_epoch + 1):
         train(net, optimizer, criterion, dataloader, sample_weight_array, epoch, log_interval=100)
         sys.stdout.write('\n')

@@ -86,3 +86,10 @@ class AdaBoostClassifier():
         
         # Calculate the predicted category with the maximum vote
         return max(vote_dict.items(), key=operator.itemgetter(1))[0]
+
+    
+    def predict_using_base_classifier(self, base_classifier_index, input):
+        output = self.__base_classifier_list[base_classifier_index](input)
+        predicted = output.max(1)[1]
+        category = predicted[0].cpu().numpy().item()
+        return category

@@ -130,26 +130,36 @@ trainloader = torch.utils.data.DataLoader(dataset=trainset, shuffle=False)
 
 # base_classifier = Mlp(input_dim, output_dim).to(device)
 # classifier = AdaBoostClassifier(base_classifier)
+CLASSIFIER_NUM = 3
 classifier = AdaBoostClassifier(mlpClassifier)
-classifier.train(trainloader, classifier_num=3)
+classifier.train(trainloader, classifier_num=CLASSIFIER_NUM)
 
 test_dataset = torchvision.datasets.MNIST(root='./data', train=False, download=True, transform=transforms.ToTensor())
 test_dataloader = torch.utils.data.DataLoader(test_dataset, shuffle=False)
 
-val_loss, correct = 0, 0
-criterion = nn.CrossEntropyLoss()
+# Test the AdaBoostClassifier
+correct = 0
 for batch_index, (data, target) in enumerate(test_dataloader):
     # Copy data to GPU if needed
     data = data.to(device)
     target = target.to(device)
 
-    output = classifier.predict(data)
-    val_loss += criterion(output, target).data.item()
-    predicted = output.data.max(1)[1] # Get the index of the max log-probability
-    correct += predicted.eq(target.data).cpu().sum()
-test_loss /= len(test_dataloader)
+    category = classifier.predict(data)
+    target_category = target.cpu().numpy().item()
+    correct += 1 if category == target_category else 0
+accuracy = correct / len(test_dataloader.dataset)
+print('\nTest dataset: AdaBoostClassifier accuracy: {}/{} ({:.0f}%)\n'.format(correct, len(test_dataloader.dataset), accuracy * 100.0))
 
-accuracy = correct.to(torch.float32) / len(test_dataloader.dataset)
-        
-print('\nTest dataset: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-    test_loss, correct, len(test_dataloader.dataset), accuracy * 100.0))
+# Test the base classifier
+for i in range(CLASSIFIER_NUM):
+    correct = 0
+    for batch_index, (data, target) in enumerate(test_dataloader):
+        # Copy data to GPU if needed
+        data = data.to(device)
+        target = target.to(device)
+
+        category = classifier.predict(data)
+        target_category = target.cpu().numpy().item()
+        correct += 1 if category == target_category else 0
+    accuracy = correct / len(test_dataloader.dataset)
+    print('\nTest dataset: Base classifier #{} accuracy: {}/{} ({:.0f}%)\n'.format(i, correct, len(test_dataloader.dataset), accuracy * 100.0))

@@ -113,6 +113,11 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
 def calculateLossFactor(weight, weight_array):
     min = weight_array.min()
     max = weight_array.max()
+
+    # Check if min equals max
+    if min == max:
+        return 1
+
     length = max - min
     factor = (weight - min) * 9 / length + 1
     return factor

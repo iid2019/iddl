@@ -1,3 +1,9 @@
+"""
+Hyperparameters:
+- learning rate
+- number of training epoch for every single base classifier
+- number of base classifiers
+"""
 
 import sys
 sys.path.append('../resnet')
@@ -125,7 +131,7 @@ for batch_index, (data, target) in enumerate(test_dataloader):
     target_category = target.cpu().numpy().item()
     correct += 1 if category == target_category else 0
 accuracy = correct / len(test_dataloader.dataset)
-print('\nTest dataset: AdaBoostClassifier accuracy: {}/{} ({:.0f}%)\n'.format(correct, len(test_dataloader.dataset), accuracy * 100.0))
+print('\nTest dataset: AdaBoostClassifier accuracy: {}/{} ({:.2f}%)\n'.format(correct, len(test_dataloader.dataset), accuracy * 100.0))
 
 # Test the base classifier
 for i in range(CLASSIFIER_NUM):
@@ -139,4 +145,4 @@ for i in range(CLASSIFIER_NUM):
         target_category = target.cpu().numpy().item()
         correct += 1 if category == target_category else 0
     accuracy = correct / len(test_dataloader.dataset)
-    print('Test dataset: Base classifier #{} accuracy: {}/{} ({:.0f}%)'.format(i, correct, len(test_dataloader.dataset), accuracy * 100.0))
+    print('Test dataset: Base classifier #{} accuracy: {}/{} ({:.2f}%)'.format(i, correct, len(test_dataloader.dataset), accuracy * 100.0))

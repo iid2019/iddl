@@ -56,12 +56,12 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
     # Set net to training mode
     model.train()
 
-    min_weight = sample_weight_array.min()
+    # min_weight = sample_weight_array.min()
 
     # Loop over each batch from the training set
     for batch_index, (data, target) in enumerate(dataloader):
         weight = sample_weight_array[batch_index]
-        num_repeat = math.ceil(weight / min_weight)
+        # num_repeat = math.ceil(weight / min_weight)
 
         # Copy data to GPU if needed
         data = data.to(device)
@@ -93,8 +93,9 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
         # Calculate loss
         loss = criterion(output, target)
 
-        # Currently test the naive ensemble
-        # loss *= num_repeat
+        # Apply the sample weight
+        factor = weight * 9 + 1
+        loss *= factor
 
         # Backpropagate
         loss.backward()

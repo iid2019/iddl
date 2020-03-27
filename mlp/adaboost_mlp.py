@@ -61,46 +61,46 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
     # Loop over each batch from the training set
     for batch_index, (data, target) in enumerate(dataloader):
         weight = sample_weight_array[batch_index]
-        # num_repeat = math.ceil(weight / min_weight)
+        num_repeat = math.floor(normalizeWeightInRange(weight, sample_weight_array, 10))
 
         # Copy data to GPU if needed
         data = data.to(device)
         target = target.to(device)
 
-        # Too slow!
-        # for i in range(num_repeat):
-        #     # Zero gradient buffers
-        #     optimizer.zero_grad() 
+        # Repeat the sample according to the weight
+        for i in range(num_repeat):
+            # Zero gradient buffers
+            optimizer.zero_grad() 
                 
-        #     # Pass data through the network
-        #     output = model(data)
+            # Pass data through the network
+            output = model(data)
 
-        #     # Calculate loss
-        #     loss = criterion(output, target)
+            # Calculate loss
+            loss = criterion(output, target)
 
-        #     # Backpropagate
-        #     loss.backward()
+            # Backpropagate
+            loss.backward()
             
-        #     # Update weights
-        #     optimizer.step()
+            # Update weights
+            optimizer.step()
         
-        # Zero gradient buffers
-        optimizer.zero_grad() 
+        # # Zero gradient buffers
+        # optimizer.zero_grad() 
         
-        # Pass data through the network
-        output = model(data)
+        # # Pass data through the network
+        # output = model(data)
 
-        # Calculate loss
-        loss = criterion(output, target)
+        # # Calculate loss
+        # loss = criterion(output, target)
 
-        # Apply the sample weight
-        loss *= calculateLossFactor(weight, sample_weight_array)
+        # # Apply the sample weight
+        # loss *= calculateLossFactor(weight, sample_weight_array)
 
-        # Backpropagate
-        loss.backward()
+        # # Backpropagate
+        # loss.backward()
         
-        # Update weights
-        optimizer.step()
+        # # Update weights
+        # optimizer.step()
         
         if (batch_index + 1) % log_interval == 0:
             sys.stdout.write('\r')
@@ -110,7 +110,10 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
                 100. * (batch_index + 1) / len(dataloader), loss.data.item()), end='')
 
 
-def calculateLossFactor(weight, weight_array):
+def normalizeWeightInRange(weight, weight_array, range_right):
+    """
+    Normalize the weight to range [1, range_right]
+    """
     min = weight_array.min()
     max = weight_array.max()
 
@@ -119,8 +122,8 @@ def calculateLossFactor(weight, weight_array):
         return 1
 
     length = max - min
-    factor = (weight - min) * 9 / length + 1
-    return factor
+    num_repeat = (weight - min) * (range_right - 1) / length + 1
+    return num_repeat
 
 
 trainset = torchvision.datasets.MNIST('./data', train=True, download=True, transform=transforms.ToTensor())

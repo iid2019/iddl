@@ -2,4 +2,4 @@
 *.log
 
 # The pid files
-adaboost_mlp_pid.txt
+adaboost_mlp_*_pid.txt

@@ -94,8 +94,7 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
         loss = criterion(output, target)
 
         # Apply the sample weight
-        factor = weight * 9 + 1
-        loss *= factor
+        loss *= calculateLossFactor(weight, sample_weight_array)
 
         # Backpropagate
         loss.backward()
@@ -109,6 +108,14 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
             print('    Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, (batch_index + 1) * len(data), len(dataloader.dataset),
                 100. * (batch_index + 1) / len(dataloader), loss.data.item()), end='')
+
+
+def calculateLossFactor(weight, weight_array):
+    min = weight_array.min()
+    max = weight_array.max()
+    length = max - min
+    factor = (weight - min) * 9 / length + 1
+    return factor
 
 
 trainset = torchvision.datasets.MNIST('./data', train=True, download=True, transform=transforms.ToTensor())

@@ -21,11 +21,6 @@ class Plotter(object):
             save_to_filepath: The path to a file in which the plot will be saved,
                 e.g. "/tmp/last_plot.png". If set to None, the chart will not be
                 saved to a file. (Default is None.)
-            show_averages: Whether to plot moving averages in the charts for
-                each line (so for loss train, loss val, ...). This value may
-                only be True or False. To change the interval (default is 20
-                epochs), change the instance variable "averages_period" to the new
-                integer value. (Default is True.)
             show_loss_plot: Whether to show the chart for the loss values. If
                 set to False, only the accuracy chart will be shown. (Default
                 is True.)
@@ -51,17 +46,9 @@ class Plotter(object):
         self.grid = True
 
         # the colors of the lines, tuple(x / 255 for x in colors)
-        # 0 = main exit, 1 = 1st exit, 2 = 2nd exit
-        # sma = simple moving average
-        self.colors = {
-            "train_0": (31, 119, 180),
-            "test_0": (174, 199, 232),
-            "train_1": (44, 160, 44),
-            "test_1": (152, 223, 138),
-            "train_2": (214, 39, 40),
-            "test_2": (255, 152, 150),
-        }
-        
+        self.colors = np.array([[31, 119, 180],
+            [44, 160, 44],
+            [214, 39, 40]])/255
         # these values will be set in _initialize_plot() upon the first call
         # of redraw()
         # fig: the figure of the whole plot
@@ -71,18 +58,27 @@ class Plotter(object):
         self.ax_loss = None
         self.ax_acc = None 
 
-    def plot_values(self, loss_train=None, loss_test=None, acc_train=None,
+    def plot_values(self, labels=None, loss_train=None, loss_test=None, acc_train=None,
                    acc_test=None):
         """
         Args:
-            loss_train: 
-            loss_val: 
-            acc_train:
-            acc_val: 
-                            number of exits x epoches
+            The () gives the size of each parameter.
+            labels: (number of models/exits) model name or exits index; will be shown as legend;
+            loss_train: (number of epoches x number of models/exits)
+            loss_val: (number of epoches x number of models/exits)
+            acc_train: (number of epoches x number of models/exits)
+            acc_val: (number of epoches x number of models/exits)
+                            
         """
-        index = np.arange(loss_train.shape[1])
-        num = loss_train.shape[0] # how many exits the result has
+        loss_train = loss_train.T
+        loss_test = loss_test.T
+        acc_train = acc_train.T
+        acc_test = acc_test.T
+        epoch = np.arange(loss_train.shape[1])
+        num = loss_train.shape[0] # number of exits/models
+        if num > 3: # the default color list is not enough
+            for i in range(num-3):
+                self.colors = np.append(self.colors, np.random.uniform(0,1,3).reshape(1,3), 0) # randomly generate the new color
         fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(24, 8))
         self.fig = fig
         
@@ -96,39 +92,23 @@ class Plotter(object):
         
         # plot the loss
         for i in range(num):
-            color = self.colors["train_"+str(i)]
-            if num == 1:
-                ax1.plot(index, loss_train[i], c = tuple(x / 255 for x in color), label = "training loss")
-            else:
-                ax1.plot(index, loss_train[i], c = tuple(x / 255 for x in color), label = "training loss of exit "+str(i))
+            ax1.plot(epoch, loss_train[i], c = self.colors[i], label =labels[i] + " training loss")
         for i in range(num):
-            color = self.colors["test_"+str(i)]
-            if num == 1:
-                ax1.plot(index, loss_train[i], c = tuple(x / 255 for x in color), label = "testing loss")
-            else:
-                ax1.plot(index, loss_test[i], c = tuple(x / 255 for x in color), label = "  testing loss of exit "+str(i))
+            ax1.plot(epoch, loss_test[i], c = self.colors[i], label = labels[i] + " testing loss", alpha = 0.65)
         
         # plot the acc
         for i in range(num):
-            color = self.colors["train_"+str(i)]
-            if num == 1:
-                ax2.plot(index, acc_train[i], c = tuple(x / 255 for x in color), label = "training accuracy")
-            else:
-                ax2.plot(index, acc_train[i], c = tuple(x / 255 for x in color), label = "training accuracy of exit"+str(i))
+            ax2.plot(epoch, acc_train[i], c = self.colors[i], label = labels[i] + " training accuracy")
         for i in range(num):
-            color = self.colors["test_"+str(i)]
-            if num == 1:
-                ax2.plot(index, acc_train[i], c = tuple(x / 255 for x in color), label = "testing accuracy")
-            else:
-                ax2.plot(index, acc_test[i], c = tuple(x / 255 for x in color), label = "testing accuracy of exit "+str(i))
+            ax2.plot(epoch, acc_test[i], c = self.colors[i], label = labels[i] + " testing accuracy", alpha = 0.65)
         
         ax1.legend(loc="upper center",
                        bbox_to_anchor=(0.5, -0.08),
-                       ncol=2, fontsize = 19)
+                       ncol=2, fontsize = 15)
         
         ax2.legend(loc="upper center",
                        bbox_to_anchor=(0.5, -0.08),
-                       ncol=2, fontsize = 19)
+                       ncol=2, fontsize = 15)
         
         fig.suptitle(self.title, fontsize = 23)
         plt.draw()

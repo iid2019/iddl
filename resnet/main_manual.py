@@ -10,7 +10,6 @@ import torchvision.transforms as transforms
 
 import os
 import argparse
-import matplotlib.pyplot as plt
 
 from models import *
 from utils import progress_bar
@@ -20,13 +19,13 @@ from models.resnet_gc import *
 from models.resnet_bibd_gc import *
 from models.resnet_exit import *
 from models.resnet_exit_BIBD import *
+from models.resnet_exit_gc import *
+from models.resnet_ENS_EE import *
+from models.resnet_ENS_BIBD_EE import *
+from models.resnet_BIBD_EE_GC import *
 
 import time
 import numpy as np
-
-sys.path.append('../LossAccPlotter')
-from laplotter import LossAccPlotter
-
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.01, type=float, help='learning rate')
@@ -70,7 +69,7 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 
 # Model
 print('==> Building model..')
-net = ResNet_3exit()
+net = ResNet_BIBD_EE_GC()
 # net = ResNet_e_B() # ResNet with the early exit and BIBD
 net = net.to(device)
 
@@ -106,11 +105,14 @@ def train(epoch, records):
         outputs = net(inputs)
         
         loss = criterion(outputs[2], targets)
+        # loss.backward(retain_graph = True)
         loss.backward(retain_graph = True)
         optimizer.step()
         
         outputs[0] = e1_Net(outputs[0], params1) # the outputs of the exits branches
         outputs[1] = e2_Net(outputs[1], params2)
+        
+        # add comment to check the main exit accuracy
         
         loss0 = F.cross_entropy(outputs[0], targets)
         loss0.backward(retain_graph = True)
@@ -124,7 +126,7 @@ def train(epoch, records):
 
                 # Manually zero the gradients after running the backward pass
                 w.grad.zero_()
-        
+
         for i in range(num_exit):
                 _, predicted = outputs[i].max(1)
                 correct[i] += predicted.eq(targets).sum().item()
@@ -257,8 +259,14 @@ print('Total time usage: {}'.format(format_time(end_time - begin_time)))
 
 train_records = np.array(train_records)
 test_records = np.array(test_records)
+train_loss = train_records[:, [0,2,4]]
+train_acc = train_records[:, [1,3,5]]
+test_loss = test_records[:, [0,2,4]]
+test_acc = test_records[:, [1,3,5]]
 #test_time = np.array(test_time)
-np.savetxt("./results/train_e_"+str(args.file)+".csv", train_records, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/test_e_"+str(args.file)+".csv", test_records, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/GC_EE/train_loss_"+str(i + 1)+".csv", train_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/GC_EE/train_acc_"+str(i + 1)+".csv", train_acc, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/GC_EE/test_loss_"+str(i + 1)+".csv", test_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/GC_EE/test_acc_"+str(i + 1)+".csv", test_acc, fmt = '%.3e', delimiter = ",")
 #np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")
 

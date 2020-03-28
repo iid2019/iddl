@@ -2,8 +2,10 @@
 
 [reference](https://github.com/kuangliu/pytorch-cifar)
 
-Use `python main.py` train the CIFAR10 with ResNet.
+All the `.py` with the key words `manual` is for the model with three exits.
 
-If there is any checkpoint record, one can use `python main.py` to resume.
+In the `main.py, main_manual.py`, all the records will be saved in the name of `train/test_acc/loss.csv`. One can change that name and the folder by modifying the last few lines of them.
 
-Use `python main_manual.py --epoch 100` train the ResNet with three exits.
+The `reults` folder includes the records of the experiments we ran.
+
+FYI. EE = Early Exit, Ens = Ensemble, GC = Group Convolution.

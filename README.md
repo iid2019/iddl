@@ -48,14 +48,20 @@ The experiments are performed under combinations of the following three settings
 
 #### Vertical
 
-- No vertical partitioning or ensemble learning
-- Vertical partitioning without ensemble learning
-- Vertical partitioning with ensemble learning
+- No vertical partitioning
+- Vertical partitioning
 
 #### Horizontal
 
 - No early exiting
 - Early exiting
+
+#### Ensemble learning
+
+Ensemble learning techniques are applied to improve inference accuracy.
+
+- Ensemble learning
+- Without ensemble learning
 
 ### Criterions
 

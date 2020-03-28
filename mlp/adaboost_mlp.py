@@ -161,4 +161,4 @@ for i in range(CLASSIFIER_NUM):
         target_category = target.cpu().numpy().item()
         correct += 1 if category == target_category else 0
     accuracy = correct / len(test_dataloader.dataset)
-    print('Test dataset: Base classifier #{} accuracy: {}/{} ({:.2f}%)'.format(i, correct, len(test_dataloader.dataset), accuracy * 100.0))
+    print('Test dataset: Base classifier #{} accuracy: {}/{} ({:.2f}%)'.format(i + 1, correct, len(test_dataloader.dataset), accuracy * 100.0))

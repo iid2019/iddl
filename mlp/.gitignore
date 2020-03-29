@@ -1,0 +1,5 @@
+# Log files
+*.log
+
+# The pid files
+adaboost_mlp_*_pid.txt

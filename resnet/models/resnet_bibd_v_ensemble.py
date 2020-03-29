@@ -36,8 +36,7 @@ class BasicBlock(nn.Module):
 
 class ResNet(nn.Module):
     # The number of partitions
-    # num_partition = 4
-    num_partition = 8
+    num_partition = 4
     
     
     def __init__(self, block, num_blocks, num_classes=10):
@@ -100,7 +99,7 @@ class ResNet(nn.Module):
             # print('partition.size(): {}'.format(partition.size()))
             # print('partition = {}'.format(partition))
             partition_list.append(partition)
-
+        
         # Calculate the output of different classifiers (partitions)
         output_list = []
         # for i, partition in enumerate(partition_list):
@@ -115,7 +114,7 @@ class ResNet(nn.Module):
         return out
 
 
-def EResNet18():
+def ResNet18():
     return ResNet(BasicBlock, [2, 2, 2, 2])
 
 

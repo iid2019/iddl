@@ -1,2 +1,8 @@
 # Checkpoint folder
 checkpoint/
+
+# Log files
+*.log
+
+# The pid files
+adaboost_resnet_*_pid.txt

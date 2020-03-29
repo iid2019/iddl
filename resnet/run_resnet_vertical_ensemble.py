@@ -13,7 +13,8 @@ import argparse
 
 from utils import progress_bar
 from utils import format_time
-from models.resnet_vertical_ensemble import ResNet18
+# from models.resnet_vertical_ensemble import ResNet18
+from models.resnet_bibd_v_ensemble import ResNet18
 
 import time
 import numpy as np

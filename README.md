@@ -48,14 +48,20 @@ The experiments are performed under combinations of the following three settings
 
 #### Vertical
 
-- No vertical partitioning or ensemble learning
-- Vertical partitioning without ensemble learning
-- Vertical partitioning with ensemble learning
+- No vertical partitioning
+- Vertical partitioning
 
 #### Horizontal
 
 - No early exiting
 - Early exiting
+
+#### Ensemble learning
+
+Ensemble learning techniques are applied to improve inference accuracy.
+
+- Ensemble learning
+- Without ensemble learning
 
 ### Criterions
 
@@ -83,7 +89,14 @@ See [setup.md](./setup.md)
 | resnet18_gc4 | cifar10 | 30 | (total) 23m30s | 88.38% | | |
 | resnet18_bibd_gc4 | cifar10| 30 | (total) 33m23s | 87.35% | | |
 | resnet18 + vertical partitioning | cifar10 | 30 | (total) 22m35s | 83.830% |  |  |
-| resnet18 + vertical partitioning + ensemble learning | cifar10 | 30 | (total) 23m6s | 84.540% |  |  |
+
+### Ensemble results
+
+| Ensemble method | Dataset | Base classifier | Ensemble acc | Base acc list | # of ensemble | # of epoch <br> (for training single base classifier) |
+|---|---|---|---|---|---|---|
+| AdaBoost (SAMME) | MNIST | MLP | 96.00% | 94.11%<br>94.74%<br>93.50%<br>93.31%<br>93.56%<br>94.37%<br>93.97%<br>94.10%<br>95.19% | 9 | 1 |
+| AdaBoost (SAMME) | CIFAR10 | resnet_bibd_gc | 24.36% | 31.85%<br>28.80%<br>20.68%<br>22.85%<br>20.61%<br>20.04%<br>24.13%<br>22.06%<br>23.60% | 9 | 1 |
+| AdaBoost (SAMME) | CIFAR10 | resnet_bibd_gc | 26.15% | 41.30%<br>30.91%<br>28.52%<br>20.71%<br>20.79%<br>28.76%<br>23.77%<br>21.09%<br>28.09% | 9 | 3 |
 
 Hardware info:
 - GPU name: GeForce GTX 970

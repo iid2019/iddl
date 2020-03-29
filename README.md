@@ -96,6 +96,7 @@ See [setup.md](./setup.md)
 |---|---|---|---|---|---|---|
 | AdaBoost (SAMME) | MNIST | MLP | 96.00% | 94.11%<br>94.74%<br>93.50%<br>93.31%<br>93.56%<br>94.37%<br>93.97%<br>94.10%<br>95.19% | 9 | 1 |
 | AdaBoost (SAMME) | CIFAR10 | resnet_bibd_gc | 24.36% | 31.85%<br>28.80%<br>20.68%<br>22.85%<br>20.61%<br>20.04%<br>24.13%<br>22.06%<br>23.60% | 9 | 1 |
+| AdaBoost (SAMME) | CIFAR10 | resnet_bibd_gc | 26.15% | 41.30%<br>30.91%<br>28.52%<br>20.71%<br>20.79%<br>28.76%<br>23.77%<br>21.09%<br>28.09% | 9 | 3 |
 
 Hardware info:
 - GPU name: GeForce GTX 970

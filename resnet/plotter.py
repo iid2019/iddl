@@ -46,9 +46,7 @@ class Plotter(object):
         self.grid = True
 
         # the colors of the lines, tuple(x / 255 for x in colors)
-        self.colors = np.array([[31, 119, 180],
-            [44, 160, 44],
-            [214, 39, 40]])/255
+        self.colors = np.array([[0.11764705882352941, 0.5647058823529412, 1.0],[1,0,0],[0.19607843137254902, 0.803921568627451, 0.19607843137254902], [0.5411764705882353, 0.16862745098039217, 0.8862745098039215]])
         # these values will be set in _initialize_plot() upon the first call
         # of redraw()
         # fig: the figure of the whole plot
@@ -76,7 +74,7 @@ class Plotter(object):
         acc_test = acc_test.T
         epoch = np.arange(loss_train.shape[1])
         num = loss_train.shape[0] # number of exits/models
-        if num > 3: # the default color list is not enough
+        if num > 4: # the default color list is not enough
             for i in range(num-3):
                 self.colors = np.append(self.colors, np.random.uniform(0,1,3).reshape(1,3), 0) # randomly generate the new color
         fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(24, 8))
@@ -94,13 +92,13 @@ class Plotter(object):
         for i in range(num):
             ax1.plot(epoch, loss_train[i], c = self.colors[i], label =labels[i] + " training loss")
         for i in range(num):
-            ax1.plot(epoch, loss_test[i], c = self.colors[i], label = labels[i] + " testing loss", alpha = 0.65)
+            ax1.plot(epoch, loss_test[i], c = self.colors[i], label = labels[i] + " testing loss", alpha = 0.75)
         
         # plot the acc
         for i in range(num):
             ax2.plot(epoch, acc_train[i], c = self.colors[i], label = labels[i] + " training accuracy")
         for i in range(num):
-            ax2.plot(epoch, acc_test[i], c = self.colors[i], label = labels[i] + " testing accuracy", alpha = 0.65)
+            ax2.plot(epoch, acc_test[i], c = self.colors[i], label = labels[i] + " testing accuracy", alpha = 0.75)
         
         ax1.legend(loc="upper center",
                        bbox_to_anchor=(0.5, -0.08),

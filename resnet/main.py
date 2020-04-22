@@ -20,6 +20,7 @@ from models.resnet_bibd_gc import *
 from models.resnet_exit import *
 from models.resnet_ENS_BIBD import *
 from models.resnet_bibd_gc import *
+from models.resnet_GC_ENS_BIBD import *
 
 import time
 import numpy as np
@@ -68,7 +69,7 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 print('==> Building model..')
 # net = VGG('VGG19')
 # net = ResNet18()
-net = ResNet_bibd_gc()
+net = GEBResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
 # net = DenseNet121()
@@ -188,8 +189,8 @@ train_acc = train_records[:, 1]
 test_loss = test_records[:, 0]
 test_acc = test_records[:, 1]
 #test_time = np.array(test_time)
-np.savetxt("./results/GC_EE/train_loss_"+str(i + 1)+".csv", train_loss, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/GC_EE/train_acc_"+str(i + 1)+".csv", train_acc, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/GC_EE/test_loss_"+str(i + 1)+".csv", test_loss, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/GC_EE/test_acc_"+str(i + 1)+".csv", test_acc, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/BIBD_EE_GC/train_loss_"+str(args.file)+".csv", train_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/BIBD_EE_GC/train_acc_"+str(args.file)+".csv", train_acc, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/BIBD_EE_GC/test_loss_"+str(args.file)+".csv", test_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/BIBD_EE_GC/test_acc_"+str(args.file)+".csv", test_acc, fmt = '%.3e', delimiter = ",")
 #np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")

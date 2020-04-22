@@ -16,6 +16,18 @@ import torchvision.transforms as transforms
 import math
 import time
 from time_utils import format_time
+import numpy as np
+
+
+begin_time = time.time()
+
+
+# The hyper parameters
+LEARNING_RATE = 0.01
+CLASSIFIER_NUM = 9
+N_EPOCH = 10
+
+BATCH_SIZE = 128
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -31,12 +43,11 @@ def ResNetBibdGcClassifier(dataloader, sample_weight_array, log_interval=200):
     net.to(device)
 
     # Define the optimizer and loss function
-    optimizer = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.5)
+    optimizer = torch.optim.SGD(net.parameters(), lr=LEARNING_RATE, momentum=0.5)
     criterion = nn.CrossEntropyLoss()
 
-    n_epoch = 3
-    for epoch in range(1, n_epoch + 1):
-        train(net, optimizer, criterion, dataloader, sample_weight_array, epoch, log_interval=100)
+    for epoch in range(1, N_EPOCH + 1):
+        train(net, optimizer, criterion, dataloader, sample_weight_array, epoch, log_interval=log_interval)
         sys.stdout.write('\n')
         sys.stdout.flush()
 
@@ -57,12 +68,25 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
 
     # Loop over each batch from the training set
     for batch_index, (data, target) in enumerate(dataloader):
-        weight = sample_weight_array[batch_index]
-        num_repeat = math.floor(normalizeWeightInRange(weight, sample_weight_array, 10))
+        # Get the maximum weight among all the rows of this batch
+        row_num = data.size()[0]
+        start_index = batch_index * BATCH_SIZE
+        end_index = start_index + row_num
+        # # TODO
+        # print(start_index, end_index)
+        weight = np.amax(sample_weight_array[start_index:end_index])
+
+        # weight = sample_weight_array[batch_index]
+        num_repeat = math.floor(normalizeWeightInRange(weight, sample_weight_array, 1, 2))
+        # num_repeat = math.floor(len(dataloader) * weight)
 
         # Copy data to GPU if needed
         data = data.to(device)
         target = target.to(device)
+
+        if 0 == num_repeat:
+            print('No need to run this sample')
+            continue
 
         # Repeat the sample according to the weight
         for i in range(num_repeat):
@@ -107,19 +131,19 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
                 100. * (batch_index + 1) / len(dataloader), loss.data.item()), end='')
 
 
-def normalizeWeightInRange(weight, weight_array, range_right):
+def normalizeWeightInRange(weight, weight_array, range_left, range_right):
     """
-    Normalize the weight to range [1, range_right]
+    Normalize the weight to range [range_left, range_right]
     """
     min = weight_array.min()
     max = weight_array.max()
 
     # Check if min equals max
     if min == max:
-        return 1
+        return range_left
 
     length = max - min
-    num_repeat = (weight - min) * (range_right - 1) / length + 1
+    num_repeat = (weight - min) * (range_right - range_left) / length + range_left
     return num_repeat
 
 
@@ -130,18 +154,19 @@ transform_train = transforms.Compose([
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
 ])
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-trainloader = torch.utils.data.DataLoader(trainset, shuffle=False)
+train_dataloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE, shuffle=False)
+validation_dataloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=False)
 
-CLASSIFIER_NUM = 9
+# Define and train the AdaBoostClassifier
 classifier = AdaBoostClassifier(ResNetBibdGcClassifier)
-classifier.train(trainloader, classifier_num=CLASSIFIER_NUM)
+classifier.train(train_dataloader, validation_dataloader, classifier_num=CLASSIFIER_NUM)
 
 transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
 ])
 test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
-test_dataloader = torch.utils.data.DataLoader(test_dataset, shuffle=False)
+test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False)
 
 # Test the AdaBoostClassifier
 correct = 0
@@ -169,3 +194,6 @@ for i in range(CLASSIFIER_NUM):
         correct += 1 if category == target_category else 0
     accuracy = correct / len(test_dataloader.dataset)
     print('Test dataset: Base ResNetBibdGcClassifier #{} accuracy: {}/{} ({:.2f}%)'.format(i + 1, correct, len(test_dataloader.dataset), accuracy * 100.0))
+
+end_time = time.time()
+print('Total time usage: {}'.format(format_time(end_time - begin_time)))

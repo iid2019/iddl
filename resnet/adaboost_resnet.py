@@ -17,6 +17,13 @@ import math
 import time
 from time_utils import format_time
 
+import argparse
+import numpy as np
+
+parser = argparse.ArgumentParser(description='Parameters for adaboost')
+parser.add_argument('--epoch', default=1, type=int, help='the number of the exits')
+parser.add_argument('--file', default=1, type=int, help='the name of the file the data saved')
+args = parser.parse_args()
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -34,7 +41,7 @@ def ResNetBibdGcClassifier(dataloader, sample_weight_array, log_interval=200):
     optimizer = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.5)
     criterion = nn.CrossEntropyLoss()
 
-    n_epoch = 3
+    n_epoch = args.epoch
     for epoch in range(1, n_epoch + 1):
         train(net, optimizer, criterion, dataloader, sample_weight_array, epoch, log_interval=100)
         sys.stdout.write('\n')
@@ -132,7 +139,7 @@ transform_train = transforms.Compose([
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(trainset, shuffle=False)
 
-CLASSIFIER_NUM = 9
+CLASSIFIER_NUM = 5
 classifier = AdaBoostClassifier(ResNetBibdGcClassifier)
 classifier.train(trainloader, classifier_num=CLASSIFIER_NUM)
 
@@ -156,7 +163,11 @@ for batch_index, (data, target) in enumerate(test_dataloader):
 accuracy = correct / len(test_dataloader.dataset)
 print('\nTest dataset: AdaBoostClassifier accuracy: {}/{} ({:.2f}%)\n'.format(correct, len(test_dataloader.dataset), accuracy * 100.0))
 
+test_acc = []
 # Test the base classifier
+
+CLASSIFIER_NUM = 5
+
 for i in range(CLASSIFIER_NUM):
     correct = 0
     for batch_index, (data, target) in enumerate(test_dataloader):
@@ -168,4 +179,9 @@ for i in range(CLASSIFIER_NUM):
         target_category = target.cpu().numpy().item()
         correct += 1 if category == target_category else 0
     accuracy = correct / len(test_dataloader.dataset)
+    test_acc.append(accuracy)
     print('Test dataset: Base ResNetBibdGcClassifier #{} accuracy: {}/{} ({:.2f}%)'.format(i + 1, correct, len(test_dataloader.dataset), accuracy * 100.0))
+
+test_acc = np.array(test_acc)
+#test_time = np.array(test_time)
+np.savetxt("./results/Adaboost/test_acc"+str(args.file)+".csv", test_acc, fmt = '%.3e', delimiter = ",")

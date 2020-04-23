@@ -71,7 +71,9 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 print('==> Building model..')
 net = ResNet_BIBD_EE_GC()
 # net = ResNet_e_B() # ResNet with the early exit and BIBD
+# net = ResNet_3exit()
 net = net.to(device)
+model_name = 'BIBD_EE_GC'
 
 print(net)
 
@@ -145,21 +147,34 @@ def train(epoch, records):
 
 def test(epoch, records, test_time):
     global best_acc
+    s_timestamp = time.time()
     net.eval()
     test_loss = 0
     correct = np.zeros(num_exit)
     total = 0
-    #time_ = time.time()
+    used_time = [time.time() - s_timestamp, time.time() - s_timestamp] # the time the two exits need to inference
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
+            s_timestamp = time.time() # stamp: a time point
             inputs, targets = inputs.to(device), targets.to(device)
-            outputs = net(inputs)
-            #time_0 = time.time()
-            outputs[0] = e1_Net(outputs[0], params1)
-            #time_1 = time.time()
-            outputs[1] = e2_Net(outputs[1], params2)
-            #time_2 = time.time()
+            used_time[0] += time.time() - s_timestamp # add preparation time
+            used_time[1] = used_time[0]
             
+            outputs = net(inputs)
+            used_time[0] += outputs[3] # add the generate time for the input of the first exit
+            used_time[1] += outputs[4] # ...
+            
+            s_timestamp = time.time()
+            outputs[0] = e1_Net(outputs[0], params1)
+            used_time[0] += time.time() - s_timestamp # add the inference time
+            
+            s_timestamp = time.time()
+            outputs[1] = e2_Net(outputs[1], params2)
+            used_time[1] += time.time() - s_timestamp # add the inference time
+            
+            # the remaining part we take average time
+            
+            s_timestamp = time.time()
             loss = criterion(outputs[2], targets)
             loss0 = criterion(outputs[0], targets)
             loss1 = criterion(outputs[1], targets)
@@ -169,6 +184,9 @@ def test(epoch, records, test_time):
                 correct[i] += predicted.eq(targets).sum().item()
                 
             total += targets.size(0)
+            e_timestamp = time.time()
+            used_time[0] += (e_timestamp - s_timestamp) / 3
+            used_time[1] += (e_timestamp - s_timestamp) / 3
          
         msg = ''
         for i in range(num_exit):
@@ -190,8 +208,7 @@ def test(epoch, records, test_time):
         best_acc = acc
         
     # record the result
-    records += [[loss.data.tolist(), correct[2]/total, loss0.data.tolist(), correct[0]/total, loss1.data.tolist(), correct[1]/total]]
-    #test_time += [[(time_0 - time_) * 1000, (time_1 - time_) * 1000, (time_2 - time_) * 1000]]
+    records += [[loss.data.tolist(), correct[2]/total, loss0.data.tolist(), correct[0]/total, loss1.data.tolist(), correct[1]/total, used_time[0] * 1000, used_time[1] * 1000]]
         
 def flatten(x):
     N = x.shape[0] # read in N, C, H, W
@@ -263,10 +280,10 @@ train_loss = train_records[:, [0,2,4]]
 train_acc = train_records[:, [1,3,5]]
 test_loss = test_records[:, [0,2,4]]
 test_acc = test_records[:, [1,3,5]]
-#test_time = np.array(test_time)
-np.savetxt("./results/GC_EE/train_loss_"+str(i + 1)+".csv", train_loss, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/GC_EE/train_acc_"+str(i + 1)+".csv", train_acc, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/GC_EE/test_loss_"+str(i + 1)+".csv", test_loss, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/GC_EE/test_acc_"+str(i + 1)+".csv", test_acc, fmt = '%.3e', delimiter = ",")
-#np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")
+test_time = test_records[:, [6,7]]
+np.savetxt("./results/"+model_name+"/train_loss_"+str(args.file)+".csv", train_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/"+model_name+"/train_acc_"+str(args.file)+".csv", train_acc, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/"+model_name+"/test_loss_"+str(args.file)+".csv", test_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/"+model_name+"/test_acc_"+str(args.file)+".csv", test_acc, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/"+model_name+"/test_time_"+str(args.file)+".csv", test_time, fmt = '%.3e', delimiter = ",")
 

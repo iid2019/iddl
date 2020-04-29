@@ -121,13 +121,14 @@ class ResNet(nn.Module):
         out = F.avg_pool2d(out, 4)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
+        s2_timestamp = time.time()
         
         # s0 - s : the time we need to generate the input of the first exit
         # s1 - s : the time ... the second exit
-        return np.array([exit_0, exit_1, out, s0_timestamp - s_timestamp, s1_timestamp - s_timestamp]) 
+        return np.array([exit_0, exit_1, out, s0_timestamp - s_timestamp, s1_timestamp - s_timestamp, s2_timestamp - s_timestamp]) 
 
 
-def ResNet_BIBD_EE_GC():
+def ResNet_BIBD_GC_EE():
     return ResNet(BBasicBlock, [2,2,2,2])
 
 def test():

@@ -7,6 +7,8 @@ Currently implemented:
 import numpy as np
 import operator
 import math
+import time
+from time_utils import format_time
 
 
 class AdaBoostClassifier():
@@ -22,21 +24,24 @@ class AdaBoostClassifier():
         return
 
 
-    def train(self, dataloader, classifier_num=5):
+    def train(self, train_dataloader, validation_dataloader, classifier_num=5):
         # Initialize the sample weight array
-        n = len(dataloader)
+        n = len(validation_dataloader)
         self.__sample_weight_array = np.repeat(1/n, n)
 
         for i in range(classifier_num):
             print('Training classifier {}...'.format(i + 1))
 
             # Train the classifier
-            trained_classifier = self.__base_classifier(dataloader, self.__sample_weight_array)
+            begin_time = time.time()
+            trained_classifier = self.__base_classifier(train_dataloader, self.__sample_weight_array, log_interval=10)
+            end_time = time.time()
+            print('    Training time: {}'.format(format_time(end_time - begin_time)))
             self.__base_classifier_list.append(trained_classifier)
 
             # Calculate the error
             error = 0
-            for index, (x, y) in enumerate(dataloader):
+            for index, (x, y) in enumerate(validation_dataloader):
                 # TODO: The logic here should stay outside of this class
                 x = x.to('cuda')
                 y = y.to('cuda')
@@ -54,7 +59,7 @@ class AdaBoostClassifier():
             self.__weight_list.append(weight)
             
             # Update the weights
-            for index, (x, y) in enumerate(dataloader):
+            for index, (x, y) in enumerate(validation_dataloader):
                 # print(y)
                 # TODO: The logic here should stay outside of this class
                 x = x.to('cuda')

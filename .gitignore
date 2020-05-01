@@ -119,3 +119,6 @@ data/
 # VS Code
 .vscode
 .csv
+
+# log folder
+log/

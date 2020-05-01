@@ -3,6 +3,7 @@ Hyperparameters:
 - learning rate
 - number of training epoch for every single base classifier
 - number of base classifiers
+- batch size
 """
 
 import sys
@@ -22,11 +23,10 @@ import numpy as np
 begin_time = time.time()
 
 
-# The hyper parameters
+# The hyperparameters
 LEARNING_RATE = 0.01
 CLASSIFIER_NUM = 9
 N_EPOCH = 10
-
 BATCH_SIZE = 128
 
 

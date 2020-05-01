@@ -104,3 +104,7 @@ Hardware info:
 - GPU count: 1
 - Cuda version: 10.2
 - Driver version: 440.33.01
+
+## Get involved
+
+Please follow the instructions if you want to contribute to this repository: [contribution_guide.md](./contribution_guide.md)

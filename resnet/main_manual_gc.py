@@ -72,9 +72,9 @@ print('==> Building model..')
 # net = ResNet_BIBD_EE_GC()
 # net = ResNet_e_B() # ResNet with the early exit and BIBD
 # net = ResNet_3exit()
-net = ResNet_EE()
+net = ResNet_GC_EE()
 net = net.to(device)
-model_name = 'EE'
+model_name = 'GC_EE'
 
 print(net)
 

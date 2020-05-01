@@ -68,8 +68,8 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 # Model
 print('==> Building model..')
 # net = VGG('VGG19')
-# net = ResNet18()
-net = GEBResNet18()
+net = ResNet18()
+# net = GEBResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
 # net = DenseNet121()
@@ -83,9 +83,10 @@ net = GEBResNet18()
 # net = EfficientNetB0()
 # net = ResNeXt29_2x64d_bibd()
 # net = ResNet_gc()
+# net = BResNet18()
 # net = ResNet_bibd_gc()
-# net = ResNet_3exit()
 net = net.to(device)
+model_name = 'ResNet18' # the records will be saved in 
 
 print(net)
 
@@ -111,6 +112,7 @@ optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5
 
 def train(epoch, records):
     print('\nEpoch: %d' % epoch)
+    st_time = time.time()
     net.train()
     train_loss = 0
     correct = 0
@@ -119,7 +121,6 @@ def train(epoch, records):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = net(inputs)
-        outputs = outputs
         loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()
@@ -131,11 +132,12 @@ def train(epoch, records):
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-        
-    records += [[loss.data.tolist(), correct/total]]
+    en_time = time.time()
+    records += [[loss.data.tolist(), correct/total, (en_time - st_time) * 1000]]
 
 def test(epoch, records):
     global best_acc
+    st_time = time.time()
     net.eval()
     test_loss = 0
     correct = 0
@@ -155,6 +157,7 @@ def test(epoch, records):
             progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                 % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
+    en_time = time.time()
     # Save checkpoint.
     acc = 100.*correct/total
     if acc > best_acc:
@@ -168,10 +171,10 @@ def test(epoch, records):
             os.mkdir('checkpoint')
         torch.save(state, './checkpoint/ckpt.pth')
         best_acc = acc
-    records += [[loss.data.tolist(), correct/total]]
+    records += [[loss.data.tolist(), correct/total, (en_time - st_time) * 1000]]
 
 train_records = [] # train_records[i]: the training loss and accuracy of ith exit
-test_records = []    
+test_records = []
     
 begin_time = time.time()
 for ep in range(start_epoch, start_epoch+args.epoch):
@@ -186,11 +189,13 @@ train_records = np.array(train_records)
 test_records = np.array(test_records)
 train_loss = train_records[:, 0]
 train_acc = train_records[:, 1]
+train_time = train_records[:, 2]
 test_loss = test_records[:, 0]
 test_acc = test_records[:, 1]
-#test_time = np.array(test_time)
-np.savetxt("./results/BIBD_EE_GC/train_loss_"+str(args.file)+".csv", train_loss, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/BIBD_EE_GC/train_acc_"+str(args.file)+".csv", train_acc, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/BIBD_EE_GC/test_loss_"+str(args.file)+".csv", test_loss, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/BIBD_EE_GC/test_acc_"+str(args.file)+".csv", test_acc, fmt = '%.3e', delimiter = ",")
-#np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")
+test_time = test_records[:, 2]
+np.savetxt("./results/"+model_name+"/train_loss_"+str(args.file)+".csv", train_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/"+model_name+"/train_acc_"+str(args.file)+".csv", train_acc, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/"+model_name+"/train_time_"+str(args.file)+".csv", train_time, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/"+model_name+"/test_loss_"+str(args.file)+".csv", test_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/"+model_name+"/test_acc_"+str(args.file)+".csv", test_acc, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/"+model_name+"/test_time_"+str(args.file)+".csv", test_time, fmt = '%.3e', delimiter = ",")

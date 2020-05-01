@@ -116,9 +116,11 @@ dmypy.json
 # Data folder
 data/
 
+# Experiment records
+*.csv
+
 # VS Code
 .vscode
-.csv
 
 # log folder
 log/

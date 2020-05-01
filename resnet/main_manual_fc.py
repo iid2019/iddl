@@ -69,12 +69,10 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 
 # Model
 print('==> Building model..')
+net = ResNet_3exit()
 # net = ResNet_BIBD_EE_GC()
 # net = ResNet_e_B() # ResNet with the early exit and BIBD
-# net = ResNet_3exit()
-net = ResNet_EE()
 net = net.to(device)
-model_name = 'EE'
 
 print(net)
 
@@ -147,30 +145,21 @@ def train(epoch, records):
         
 
 def test(epoch, records, test_time):
-    s_time = time.time()
     global best_acc
     net.eval()
     test_loss = 0
     correct = np.zeros(num_exit)
     total = 0
-    rec_time = [0,0,0] # wait time
-    local_time = [0,0]
+    #time_ = time.time()
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
             inputs, targets = inputs.to(device), targets.to(device)
-            
-            loc_time = time.time()
             outputs = net(inputs)
-            rec_time[0] += outputs[3]
-            rec_time[1] += outputs[4]
-            rec_time[2] += outputs[5]
-            
-            loc_time = time.time()
+            #time_0 = time.time()
             outputs[0] = e1_Net(outputs[0], params1)
-            local_time[0] += time.time() - loc_time
-            loc_time = time.time()
+            #time_1 = time.time()
             outputs[1] = e2_Net(outputs[1], params2)
-            local_time[1] += time.time() - loc_time
+            #time_2 = time.time()
             
             loss = criterion(outputs[2], targets)
             loss0 = criterion(outputs[0], targets)
@@ -186,7 +175,7 @@ def test(epoch, records, test_time):
         for i in range(num_exit):
             msg = msg + '| Ex%d Acc: %.2f%%' % (i + 1, 100. * correct[i] / total)
         print(msg)
-    e_time = time.time()
+    
     # Save checkpoint
     acc = 100.0 * correct[num_exit-1] / total
     if acc > best_acc:
@@ -202,7 +191,8 @@ def test(epoch, records, test_time):
         best_acc = acc
         
     # record the result
-    records += [[loss.data.tolist(), correct[2]/total, loss0.data.tolist(), correct[0]/total, loss1.data.tolist(), correct[1]/total, rec_time[0] * 1000, rec_time[1] * 1000, rec_time[2] * 1000, local_time[0] * 1000, local_time[1] * 1000, (e_time - s_time) * 1000]]
+    records += [[loss.data.tolist(), correct[2]/total, loss0.data.tolist(), correct[0]/total, loss1.data.tolist(), correct[1]/total]]
+    #test_time += [[(time_0 - time_) * 1000, (time_1 - time_) * 1000, (time_2 - time_) * 1000]]
         
 def flatten(x):
     N = x.shape[0] # read in N, C, H, W
@@ -231,29 +221,25 @@ def zero_weight(shape):
     return torch.zeros(shape, device=device, dtype=dtype, requires_grad=True)
 
 def e1_Net(exit1, params):
-    conv1_w, conv1_b, fc1_w, fc1_b = params
-    exit1 = F.relu(F.conv2d(exit1, conv1_w, conv1_b, stride = 1, padding = 1))
+    fc1_w, fc1_b = params
     exit1 = flatten(exit1).mm(fc1_w) + fc1_b
     return exit1
     
 def e2_Net(exit2, params):
-    conv2_w, conv2_b, fc2_w, fc2_b = params
-    exit2 = F.relu(F.conv2d(exit2, conv2_w, conv2_b, stride = 1, padding = 1))
+    fc2_w, fc2_b = params
     exit2 = flatten(exit2).mm(fc2_w) + fc2_b
     return exit2
     
 # initialization
-conv1_w = random_weight((32, 128, 3, 3))
-conv1_b = zero_weight((32,))
-fc1_w = random_weight((32*16*16, 10))
+# exit 0 [128, 128, 16, 16]
+# exit 1 [128, 256, 8, 8]
+fc1_w = random_weight((128*16*16, 10))
 fc1_b = zero_weight((10,))
-params1 = [conv1_w, conv1_b, fc1_w, fc1_b]
+params1 = [fc1_w, fc1_b]
     
-conv2_w = random_weight((32, 256, 3, 3))
-conv2_b = zero_weight((32,))
-fc2_w = random_weight((32*8*8, 10))
+fc2_w = random_weight((256*8*8, 10))
 fc2_b = zero_weight((10,))
-params2 = [conv2_w, conv2_b, fc2_w, fc2_b]
+params2 = [fc2_w, fc2_b]
 
 train_records = [] # train_records[i]: the training loss and accuracy of ith exit
 test_records = []
@@ -274,10 +260,10 @@ train_loss = train_records[:, [0,2,4]]
 train_acc = train_records[:, [1,3,5]]
 test_loss = test_records[:, [0,2,4]]
 test_acc = test_records[:, [1,3,5]]
-test_time = test_records[:, [6,7,8,9,10,11]]
-np.savetxt("./results/"+model_name+"/train_loss_"+str(args.file)+".csv", train_loss, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/"+model_name+"/train_acc_"+str(args.file)+".csv", train_acc, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/"+model_name+"/test_loss_"+str(args.file)+".csv", test_loss, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/"+model_name+"/test_acc_"+str(args.file)+".csv", test_acc, fmt = '%.3e', delimiter = ",")
-np.savetxt("./results/"+model_name+"/test_time_"+str(args.file)+".csv", test_time, fmt = '%.3e', delimiter = ",")
+#test_time = np.array(test_time)
+np.savetxt("./results/EE_FC/train_loss_"+str(args.file)+".csv", train_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/EE_FC/train_acc_"+str(args.file)+".csv", train_acc, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/EE_FC/test_loss_"+str(args.file)+".csv", test_loss, fmt = '%.3e', delimiter = ",")
+np.savetxt("./results/EE_FC/test_acc_"+str(args.file)+".csv", test_acc, fmt = '%.3e', delimiter = ",")
+#np.savetxt("./results/time_e_B_"+str(args.file)+".csv", test_time, fmt = '%.4e', delimiter = ",")
 

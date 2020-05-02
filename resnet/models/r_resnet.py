@@ -1,25 +1,31 @@
-'''BResNet: ResNet with BIBD in PyTorch.
+# -*- coding: UTF-8 -*-
 
-Reference:
+"""
+R-ResNet: Random sparse ResNet.
+
+References:
 [1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
     Deep Residual Learning for Image Recognition. arXiv:1512.03385
-'''
+"""
+
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import sys
 sys.path.append('../bibd')
-from bibd_layer import BibdConv2d
+from bibd_layer import RandomSparseConv2d
 
-class BBasicBlock(nn.Module):
+
+class RBasicBlock(nn.Module):
     expansion = 1
 
 
     def __init__(self, in_planes, planes, stride=1):
-        super(BBasicBlock, self).__init__()
-        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1)
+        super(RBasicBlock, self).__init__()
+        self.conv1 = RandomSparseConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1)
+        self.conv2 = RandomSparseConv2d(planes, planes, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
@@ -38,12 +44,13 @@ class BBasicBlock(nn.Module):
         return out
 
 
-class Bottleneck(nn.Module):
+# TODO: Modify RBottleneck to use random sparsification
+class RBottleneck(nn.Module):
     expansion = 4
 
 
     def __init__(self, in_planes, planes, stride=1):
-        super(Bottleneck, self).__init__()
+        super(RBottleneck, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
@@ -68,9 +75,10 @@ class Bottleneck(nn.Module):
         return out
 
 
-class BResNet(nn.Module):
+class RResNet(nn.Module):
+
     def __init__(self, block, num_blocks, num_classes=10):
-        super(BResNet, self).__init__()
+        super(RResNet, self).__init__()
         self.in_planes = 64
 
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
@@ -112,27 +120,27 @@ class BResNet(nn.Module):
         return out
 
 
-def BResNet18():
-    return BResNet(BBasicBlock, [2,2,2,2])
+def RResNet18():
+    return RResNet(RBasicBlock, [2,2,2,2])
 
 
-def BResNet34():
-    return BResNet(BBasicBlock, [3,4,6,3])
+def RResNet34():
+    return RResNet(RBasicBlock, [3,4,6,3])
 
 
-def BResNet50():
-    return BResNet(BBottleneck, [3,4,6,3])
+def RResNet50():
+    return RResNet(RBottleneck, [3,4,6,3])
 
 
-def BResNet101():
-    return BResNet(BBottleneck, [3,4,23,3])
+def RResNet101():
+    return RResNet(RBottleneck, [3,4,23,3])
 
 
-def BResNet152():
-    return BResNet(BBottleneck, [3,8,36,3])
+def RResNet152():
+    return RResNet(RBottleneck, [3,8,36,3])
 
 
 def test():
-    net = BResNet18()
+    net = RResNet18()
     y = net(torch.randn(1,3,32,32))
     print(y.size())

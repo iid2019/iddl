@@ -239,3 +239,37 @@ class BibdConv2d(torch.nn.Module):
 
     def forward(self, dataInput):
         return execute2DConvolution(self.mask, self.conStride, self.conPad,self.conDil, self.conGroups)(dataInput, self.fpWeight)
+
+
+class RandomSparseConv2d(torch.nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, inDil=1, groups=1):
+        super(RandomSparseConv2d, self).__init__()
+        # Initialize all parameters that the convolution function needs to know
+        self.kernel_size = kernel_size
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.conStride = stride
+        self.conPad = padding
+        self.outPad = 0
+        self.conDil = inDil
+        self.conTrans = False
+        self.conGroups = groups
+
+        n = kernel_size * kernel_size * out_channels
+        # initialize the weights and the bias as well as the
+        self.fpWeight = torch.nn.Parameter(data=torch.Tensor(out_channels, in_channels//self.conGroups, kernel_size, kernel_size), requires_grad=True)
+        nn.init.kaiming_normal_(self.fpWeight.data, mode='fan_out')
+
+        randomSparseMask = generate_random_sparse_mask(in_channels, out_channels)
+        self.mask = torch.zeros(out_channels, (in_channels//self.conGroups), 1, 1)
+        for i in range(out_channels):
+            for j in range(in_channels//self.conGroups):
+                self.mask[i][j][0][0] = randomSparseMask[i][j]
+
+        self.mask = self.mask.repeat(1, 1, kernel_size, kernel_size)
+        self.mask = nn.Parameter(self.mask.cuda())
+        self.mask.requires_grad = False
+
+
+    def forward(self, dataInput):
+        return execute2DConvolution(self.mask, self.conStride, self.conPad,self.conDil, self.conGroups)(dataInput, self.fpWeight)

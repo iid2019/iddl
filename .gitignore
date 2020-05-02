@@ -124,3 +124,6 @@ data/
 
 # log folder
 log/
+
+# Python pickled data files
+*.p

@@ -1,20 +1,18 @@
 # IDDL: An Integrated Distributed Deep Learning framework
 
-Deep learning
-
-## BIBD
+## 1. BIBD
 
 Balanced Incomplete Block Design (BIBD) is the core technique in this project.
 
-[bibd_visualization.ipynb](https://nbviewer.jupyter.org/github/DerekDick/iid2019-final-project/blob/master/bibd/bibd_visualization.ipynb)
+[bibd_visualization.ipynb](https://nbviewer.jupyter.org/github/iid2019/iddl/blob/master/bibd/bibd_visualization.ipynb)
 
-### BIBD convolution
+### 1.1 BIBD convolution
 
 Depthwise sparsification
 
 ![BIBD convolution](./figure/bibd_convolution.png)
 
-## MLP experiments
+## 2. MLP experiments
 
 Three models:
 - MLP
@@ -23,13 +21,13 @@ Three models:
 
 You can check the live Jupyter Notebook here: [mlp_bibd_experiments.ipynb](https://nbviewer.jupyter.org/github/DerekDick/iid2019-final-project/blob/master/mlp/mlp_bibd_experiments.ipynb)
 
-## Experiment settings and criterions
+## 3. Experiment settings and criterions
 
-### Settings
+### 3.1 Settings
 
 The experiments are performed under combinations of the following three settings, which are **orthogonal** to each other.
 
-#### Sparsification
+#### 3.1.1 Sparsification
 
 - _Linear layers_
 
@@ -46,34 +44,34 @@ The experiments are performed under combinations of the following three settings
     - Random sparsification
     - Grouped convolution
 
-#### Vertical
+#### 3.1.2 Vertical
 
 - No vertical partitioning
 - Vertical partitioning
 
-#### Horizontal
+#### 3.1.3 Horizontal
 
 - No early exiting
 - Early exiting
 
-#### Ensemble learning
+#### 3.1.4 Ensemble learning
 
 Ensemble learning techniques are applied to improve inference accuracy.
 
 - Ensemble learning
 - Without ensemble learning
 
-### Criterions
+### 3.2 Criterions
 
 - Training loss, test accuracy per epoch
 - Training time, inference time
 - \# of parameters, FLOPs (inference stage)
 
-## Setup development environment
+## 4. Setup development environment
 
 See [setup.md](./setup.md)
 
-## Experiments data record
+## 5. Experiments data record
 
 | model | dataset | epoch | training time | test accuracy | Params | FLOPs |
 |---|---|---|---|---|---|---|
@@ -90,7 +88,7 @@ See [setup.md](./setup.md)
 | resnet18_bibd_gc4 | cifar10| 30 | (total) 33m23s | 87.35% | | |
 | resnet18 + vertical partitioning | cifar10 | 30 | (total) 22m35s | 83.830% |  |  |
 
-### Ensemble results
+**Ensemble results**
 
 | Ensemble method | Dataset | Base classifier | Ensemble acc | Base acc list | # of ensemble | # of epoch <br> (for training single base classifier) |
 |---|---|---|---|---|---|---|
@@ -105,6 +103,6 @@ Hardware info:
 - Cuda version: 10.2
 - Driver version: 440.33.01
 
-## Get involved
+## 6. Get involved
 
 Please follow the instructions if you want to contribute to this repository: [contribution_guide.md](./contribution_guide.md)

@@ -135,37 +135,37 @@ layers5 = [28*4, 56, 56, 56]
 layers7 = [28*4, 56, 56, 128, 128, 56]
 
 
-def Mlp3():
-    return BaseMlp(28*28*1, 10, layers3, nn.Linear, name='MLP-3')
+def Mlp3(input_dim, output_dim, name='MLP-3'):
+    return BaseMlp(input_dim, output_dim, layers3, nn.Linear, name=name)
 
 
-def BibdMlp3():
-    return BaseMlp(28*28*1, 10, layers3, BibdLinear, name='B-MLP-3')
+def BibdMlp3(input_dim, output_dim, name='B-MLP-3'):
+    return BaseMlp(input_dim, output_dim, layers3, BibdLinear, name=name)
 
 
-def RandomSparseMlp3():
-    return BaseMlp(28*28*1, 10, layers3, RandomSparseLinear, name='R-MLP-3')
+def RandomSparseMlp3(input_dim, output_dim, name='R-MLP-3'):
+    return BaseMlp(input_dim, output_dim, layers3, RandomSparseLinear, name=name)
 
 
-def Mlp5():
-    return BaseMlp(28*28*1, 10, layers5, nn.Linear, name='MLP-5')
+def Mlp5(input_dim, output_dim, name='MLP-5'):
+    return BaseMlp(input_dim, output_dim, layers5, nn.Linear, name=name)
 
 
-def BibdMlp5():
-    return BaseMlp(28*28*1, 10, layers5, BibdLinear, name='B-MLP-5')
+def BibdMlp5(input_dim, output_dim, name='B-MLP-5'):
+    return BaseMlp(input_dim, output_dim, layers5, BibdLinear, name=name)
 
 
-def RandomSparseMlp5():
-    return BaseMlp(28*28*1, 10, layers5, RandomSparseLinear, name='R-MLP-5')
+def RandomSparseMlp5(input_dim, output_dim, name='R-MLP-5'):
+    return BaseMlp(input_dim, output_dim, layers5, RandomSparseLinear, name=name)
 
 
-def Mlp7():
-    return BaseMlp(28*28*1, 10, layers7, nn.Linear, name='MLP-7')
+def Mlp7(input_dim, output_dim, name='MLP-7'):
+    return BaseMlp(input_dim, output_dim, layers7, nn.Linear, name=name)
 
 
-def BibdMlp7():
-    return BaseMlp(28*28*1, 10, layers7, BibdLinear, name='B-MLP-7')
+def BibdMlp7(input_dim, output_dim, name='B-MLP-7'):
+    return BaseMlp(input_dim, output_dim, layers7, BibdLinear, name=name)
 
 
-def RandomSparseMlp7():
-    return BaseMlp(28*28*1, 10, layers7, RandomSparseLinear, name='R-MLP-7')
+def RandomSparseMlp7(input_dim, output_dim, name='R-MLP-7'):
+    return BaseMlp(input_dim, output_dim, layers7, RandomSparseLinear, name=name)

@@ -86,3 +86,86 @@ class RandomSparseMlp(nn.Module):
         x = F.relu(self.randomSparseLinear1(x))
         x = F.relu(self.randomSparseLinear2(x))
         return F.log_softmax(self.fc3(x), dim=1)
+
+
+class BaseMlp(nn.Module):
+    r"""Base class for MLP based models."""
+
+
+    def __init__(self, input_dim, output_dim, layers, linearLayer, name=None):
+        """ Constructor.
+
+        Args:
+            input_dim: int. The dimension of input.
+            output_dim: int. The dimension of output. Usually the number of categories for a classification problem.
+            layers: list of int. Each number in the list represents the number of neurons in the corresponding hidden layer.
+            linearLayer: nn.Linear or its subclass. For example: nn.Linear, BibdLinear, RandomSparseLinear.
+            name: str. The name of this MLP.
+        """
+
+        # Set the name if necessary
+        if name is not None:
+            self.name = name
+
+        super(BaseMlp, self).__init__()
+
+
+        self.input_dim = input_dim
+        
+        # Layer definitions
+        self.hiddenLinearLayers = nn.ModuleList([])
+        for index, dim in enumerate(layers):
+            # Get the dimension of the previous layer
+            previousDim = input_dim if index == 0 else layers[index - 1]
+
+            # Define the current hidden layer
+            self.hiddenLinearLayers.append(linearLayer(previousDim, dim))
+        self.outputLinearLayer = nn.Linear(layers[-1], output_dim)
+
+
+    def forward(self, x):
+        x = x.view(-1, self.input_dim)
+        for layer in self.hiddenLinearLayers:
+            x = F.relu(layer(x))
+        return F.log_softmax(self.outputLinearLayer(x), dim=1)
+
+
+layers3 = [28*4, 56]
+layers5 = [28*4, 56, 56, 56]
+layers7 = [28*4, 56, 56, 128, 128, 56]
+
+
+def Mlp3():
+    return BaseMlp(28*28*1, 10, layers3, nn.Linear, name='MLP-3')
+
+
+def BibdMlp3():
+    return BaseMlp(28*28*1, 10, layers3, BibdLinear, name='B-MLP-3')
+
+
+def RandomSparseMlp3():
+    return BaseMlp(28*28*1, 10, layers3, RandomSparseLinear, name='R-MLP-3')
+
+
+def Mlp5():
+    return BaseMlp(28*28*1, 10, layers5, nn.Linear, name='MLP-5')
+
+
+def BibdMlp5():
+    return BaseMlp(28*28*1, 10, layers5, BibdLinear, name='B-MLP-5')
+
+
+def RandomSparseMlp5():
+    return BaseMlp(28*28*1, 10, layers5, RandomSparseLinear, name='R-MLP-5')
+
+
+def Mlp7():
+    return BaseMlp(28*28*1, 10, layers7, nn.Linear, name='MLP-7')
+
+
+def BibdMlp7():
+    return BaseMlp(28*28*1, 10, layers7, BibdLinear, name='B-MLP-7')
+
+
+def RandomSparseMlp7():
+    return BaseMlp(28*28*1, 10, layers7, RandomSparseLinear, name='R-MLP-7')

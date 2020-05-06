@@ -106,3 +106,7 @@ Hardware info:
 ## 6. Get involved
 
 Please follow the instructions if you want to contribute to this repository: [contribution_guide.md](./contribution_guide.md)
+
+### 6.1 Style guide
+
+- [Google Python Style Guide](http://google.github.io/styleguide/pyguide.html)

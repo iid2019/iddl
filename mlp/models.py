@@ -136,6 +136,10 @@ layers4 = [16, 32, 16]
 layers5 = [16, 32, 32, 16]
 layers7 = [16, 32, 32, 32, 32, 16]
 
+layers3_1 = [16, 16]
+layers3_2 = [32, 32]
+layers3_3 = [64, 64]
+
 
 def Mlp2(input_dim, output_dim, name='MLP-2'):
     return BaseMlp(input_dim, output_dim, layers2, nn.Linear, name=name)

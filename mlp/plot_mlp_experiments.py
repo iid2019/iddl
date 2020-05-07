@@ -8,14 +8,14 @@ from bibd_layer import generate_fake_bibd_mask
 
 
 TOTAL_NUM = 5
-SELECTED_INDEX_LIST = [0, 1, 2, 3]
-MODEL_INDEX_LIST = [1, 2]
+SELECTED_INDEX_LIST = [0, 1, 2, 3, 4]
+MODEL_INDEX_LIST = [0, 1, 2]
 
 numberOfParam_ndarray = np.zeros((3, TOTAL_NUM), dtype=float)
 accuracy_ndarray = np.zeros((3, TOTAL_NUM), dtype=float)
 name_list = ['MLP', 'B-MLP', 'R-MLP']
 
-filename = 'mlp_experiments_{}.p'.format('20200507_103403')
+filename = 'mlp_experiments_{}.p'.format('20200507_125503')
 experiment = pickle.load(open(filename, "rb"))
 
 # print('epoch: 100')

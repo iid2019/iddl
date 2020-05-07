@@ -6,6 +6,9 @@ from models import *
 from experiment import Experiment
 import pickle
 from datetime import datetime
+import sys
+sys.path.append('../bibd')
+from bibd_layer import BibdLinear, RandomSparseLinear
 
 
 print('MLP experiments started')
@@ -36,21 +39,30 @@ output_dim = 10
 
 model_list = []
 if torch.cuda.is_available():
-    model_list.append(Mlp2(input_dim, output_dim).to(device))
-    model_list.append(Mlp3(input_dim, output_dim).to(device))
-    model_list.append(Mlp4(input_dim, output_dim).to(device))
-    model_list.append(Mlp5(input_dim, output_dim).to(device))
-    model_list.append(Mlp7(input_dim, output_dim).to(device))
-    model_list.append(BibdMlp2(input_dim, output_dim).to(device))
-    model_list.append(BibdMlp3(input_dim, output_dim).to(device))
-    model_list.append(BibdMlp4(input_dim, output_dim).to(device))
-    model_list.append(BibdMlp5(input_dim, output_dim).to(device))
-    model_list.append(BibdMlp7(input_dim, output_dim).to(device))
-    model_list.append(RandomSparseMlp2(input_dim, output_dim).to(device))
-    model_list.append(RandomSparseMlp3(input_dim, output_dim).to(device))
-    model_list.append(RandomSparseMlp4(input_dim, output_dim).to(device))
-    model_list.append(RandomSparseMlp5(input_dim, output_dim).to(device))
-    model_list.append(RandomSparseMlp7(input_dim, output_dim).to(device))
+    # model_list.append(Mlp2(input_dim, output_dim).to(device))
+    # model_list.append(Mlp3(input_dim, output_dim).to(device))
+    # model_list.append(Mlp4(input_dim, output_dim).to(device))
+    # model_list.append(Mlp5(input_dim, output_dim).to(device))
+    # model_list.append(Mlp7(input_dim, output_dim).to(device))
+    # model_list.append(BibdMlp2(input_dim, output_dim).to(device))
+    # model_list.append(BibdMlp3(input_dim, output_dim).to(device))
+    # model_list.append(BibdMlp4(input_dim, output_dim).to(device))
+    # model_list.append(BibdMlp5(input_dim, output_dim).to(device))
+    # model_list.append(BibdMlp7(input_dim, output_dim).to(device))
+    # model_list.append(RandomSparseMlp2(input_dim, output_dim).to(device))
+    # model_list.append(RandomSparseMlp3(input_dim, output_dim).to(device))
+    # model_list.append(RandomSparseMlp4(input_dim, output_dim).to(device))
+    # model_list.append(RandomSparseMlp5(input_dim, output_dim).to(device))
+    # model_list.append(RandomSparseMlp7(input_dim, output_dim).to(device))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_1, nn.Linear, name='MLP-3-1'))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_2, nn.Linear, name='MLP-3-2'))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_3, nn.Linear, name='MLP-3-3'))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_1, BibdLinear, name='B-MLP-3-1'))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_2, BibdLinear, name='B-MLP-3-2'))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_3, BibdLinear, name='B-MLP-3-3'))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_1, RandomSparseLinear, name='R-MLP-3-1'))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_2, RandomSparseLinear, name='R-MLP-3-2'))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_3, RandomSparseLinear, name='R-MLP-3-3'))
 else:
     print('CUDA is not available. Stopped.')
 print('model_list: ')

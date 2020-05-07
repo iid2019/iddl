@@ -55,24 +55,18 @@ $ conda install matplotlib
 $ conda install -c conda-forge jupyterlab
 ```
 
-### Install `thop`
-
-> Attention: The `thop` package does not provide a conda distribution, thus this package must be installed vis pip. Pip dependencies are not listed in the conda environment file, which means that you need to install the `thop` package through pip even if you create the conda environment from the environment file.
-
-```shell
-$ pip install thop
-```
-
 ### Install `networkx`
 
 ```shell
 $ conda install networkx
 ```
 
-### Install `skorch`
+### Install `thop`
+
+> Attention: The `thop` package does not provide a conda distribution, thus this package must be installed vis pip. Pip dependencies are not listed in the conda environment file, which means that you need to install the `thop` package through pip even if you create the conda environment from the environment file.
 
 ```shell
-$ conda install -c conda-forge skorch
+$ pip install thop
 ```
 
 ## Start `jupyterlab`

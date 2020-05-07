@@ -4,6 +4,14 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms
 from models import *
 from experiment import Experiment
+import pickle
+from datetime import datetime
+
+
+print('MLP experiments started')
+
+# Use start time for the filename of the pickled file
+date_time = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 
 if torch.cuda.is_available():
@@ -28,13 +36,19 @@ output_dim = 10
 
 model_list = []
 if torch.cuda.is_available():
+    model_list.append(Mlp2(input_dim, output_dim).to(device))
     model_list.append(Mlp3(input_dim, output_dim).to(device))
+    model_list.append(Mlp4(input_dim, output_dim).to(device))
     model_list.append(Mlp5(input_dim, output_dim).to(device))
     model_list.append(Mlp7(input_dim, output_dim).to(device))
+    model_list.append(BibdMlp2(input_dim, output_dim).to(device))
     model_list.append(BibdMlp3(input_dim, output_dim).to(device))
+    model_list.append(BibdMlp4(input_dim, output_dim).to(device))
     model_list.append(BibdMlp5(input_dim, output_dim).to(device))
     model_list.append(BibdMlp7(input_dim, output_dim).to(device))
+    model_list.append(RandomSparseMlp2(input_dim, output_dim).to(device))
     model_list.append(RandomSparseMlp3(input_dim, output_dim).to(device))
+    model_list.append(RandomSparseMlp4(input_dim, output_dim).to(device))
     model_list.append(RandomSparseMlp5(input_dim, output_dim).to(device))
     model_list.append(RandomSparseMlp7(input_dim, output_dim).to(device))
 else:
@@ -44,6 +58,14 @@ for model in model_list:
     print('   {}'.format(model.name))
 
 
-experiment = Experiment(n_epoch=10)
+experiment = Experiment(n_epoch=30)
 for model in model_list:
     experiment.run_model(model, train_loader, validation_loader)
+
+
+# Save all the experiment data
+filename = 'mlp_experiments_{}.p'.format(date_time)
+pickle.dump(experiment, open(filename, "wb"))
+print('The Experiment instance experiment dumped to the file: {}'.format(filename))
+
+print('MLP experiments completed at {}'.format(datetime.now().strftime("%Y%m%d_%H%M%S")))

@@ -103,6 +103,44 @@ Hardware info:
 - Cuda version: 10.2
 - Driver version: 440.33.01
 
+### 5.1 BIBD
+
+#### 5.1.1 MLP based models
+
+| Model | \# of parameters | FLOPs |
+|---|---|---|
+| MLP-2 |  |  |
+| MLP-3 |  |  |
+| MLP-4 |  |  |
+| MLP-5 |  |  |
+| MLP-7 |  |  |
+| B-MLP-2 |  |  |
+| B-MLP-3 |  |  |
+| B-MLP-4 |  |  |
+| B-MLP-5 |  |  |
+| B-MLP-7 |  |  |
+| R-MLP-2 |  |  |
+| R-MLP-3 |  |  |
+| R-MLP-4 |  |  |
+| R-MLP-5 |  |  |
+| R-MLP-7 |  |  |
+
+**Run the experiment**
+
+```shell
+$ conda activate iddl_env
+$ cd mlp
+$ ./run_mlp_experiments.sh
+```
+
+**Output**
+
+- Log file: `./mlp/log/mlp_experiments_${BEGIN_TIME}.log`
+- PID file: `./mlp/log/mlp_experiments_${BEGIN_TIME}_pid.txt`
+- Dumped file: `./mlp/mlp_experiments_${BEGIN_TIME}.p` can be unpicked as an instance of `Experiment` class
+
+#### 5.1.2 ResNet based models
+
 ## 6. Get involved
 
 Please follow the instructions if you want to contribute to this repository: [contribution_guide.md](./contribution_guide.md)

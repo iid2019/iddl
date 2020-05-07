@@ -130,42 +130,48 @@ class BaseMlp(nn.Module):
         return F.log_softmax(self.outputLinearLayer(x), dim=1)
 
 
-layers3 = [28*4, 56]
-layers5 = [28*4, 56, 56, 56]
-layers7 = [28*4, 56, 56, 128, 128, 56]
+layers2 = [16]
+layers3 = [16, 16]
+layers4 = [16, 32, 16]
+layers5 = [16, 32, 32, 16]
+layers7 = [16, 32, 32, 32, 32, 16]
+
+
+def Mlp2(input_dim, output_dim, name='MLP-2'):
+    return BaseMlp(input_dim, output_dim, layers2, nn.Linear, name=name)
+def BibdMlp2(input_dim, output_dim, name='B-MLP-2'):
+    return BaseMlp(input_dim, output_dim, layers2, BibdLinear, name=name)
+def RandomSparseMlp2(input_dim, output_dim, name='R-MLP-2'):
+    return BaseMlp(input_dim, output_dim, layers2, RandomSparseLinear, name=name)
 
 
 def Mlp3(input_dim, output_dim, name='MLP-3'):
     return BaseMlp(input_dim, output_dim, layers3, nn.Linear, name=name)
-
-
 def BibdMlp3(input_dim, output_dim, name='B-MLP-3'):
     return BaseMlp(input_dim, output_dim, layers3, BibdLinear, name=name)
-
-
 def RandomSparseMlp3(input_dim, output_dim, name='R-MLP-3'):
     return BaseMlp(input_dim, output_dim, layers3, RandomSparseLinear, name=name)
 
 
+def Mlp4(input_dim, output_dim, name='MLP-4'):
+    return BaseMlp(input_dim, output_dim, layers4, nn.Linear, name=name)
+def BibdMlp4(input_dim, output_dim, name='B-MLP-4'):
+    return BaseMlp(input_dim, output_dim, layers4, BibdLinear, name=name)
+def RandomSparseMlp4(input_dim, output_dim, name='R-MLP-4'):
+    return BaseMlp(input_dim, output_dim, layers4, RandomSparseLinear, name=name)
+
+
 def Mlp5(input_dim, output_dim, name='MLP-5'):
     return BaseMlp(input_dim, output_dim, layers5, nn.Linear, name=name)
-
-
 def BibdMlp5(input_dim, output_dim, name='B-MLP-5'):
     return BaseMlp(input_dim, output_dim, layers5, BibdLinear, name=name)
-
-
 def RandomSparseMlp5(input_dim, output_dim, name='R-MLP-5'):
     return BaseMlp(input_dim, output_dim, layers5, RandomSparseLinear, name=name)
 
 
 def Mlp7(input_dim, output_dim, name='MLP-7'):
     return BaseMlp(input_dim, output_dim, layers7, nn.Linear, name=name)
-
-
 def BibdMlp7(input_dim, output_dim, name='B-MLP-7'):
     return BaseMlp(input_dim, output_dim, layers7, BibdLinear, name=name)
-
-
 def RandomSparseMlp7(input_dim, output_dim, name='R-MLP-7'):
     return BaseMlp(input_dim, output_dim, layers7, RandomSparseLinear, name=name)

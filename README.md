@@ -107,24 +107,6 @@ Hardware info:
 
 #### 5.1.1 MLP based models
 
-| Model | \# of parameters | FLOPs |
-|---|---|---|
-| MLP-2 |  |  |
-| MLP-3 |  |  |
-| MLP-4 |  |  |
-| MLP-5 |  |  |
-| MLP-7 |  |  |
-| B-MLP-2 |  |  |
-| B-MLP-3 |  |  |
-| B-MLP-4 |  |  |
-| B-MLP-5 |  |  |
-| B-MLP-7 |  |  |
-| R-MLP-2 |  |  |
-| R-MLP-3 |  |  |
-| R-MLP-4 |  |  |
-| R-MLP-5 |  |  |
-| R-MLP-7 |  |  |
-
 **Run the experiment**
 
 ```shell
@@ -133,11 +115,41 @@ $ cd mlp
 $ ./run_mlp_experiments.sh
 ```
 
-**Output**
-
 - Log file: `./mlp/log/mlp_experiments_${BEGIN_TIME}.log`
 - PID file: `./mlp/log/mlp_experiments_${BEGIN_TIME}_pid.txt`
 - Dumped file: `./mlp/mlp_experiments_${BEGIN_TIME}.p` can be unpicked as an instance of `Experiment` class
+
+**Plot the results**
+
+```shell
+$ conda activate iddl_env
+$ cd mlp
+$ python plot_mlp_experiments.py
+```
+
+- Figures: `./mlp/mlp_experiments.png`, `./mlp/mlp_experiments.eps`, `./mlp/mlp_experiments_sparse_only.png`, `./mlp/mlp_experiments_sparse_only.eps`
+- Log: `./mlp/log/mlp_experiments_plot_{BEGIN_TIME}.log`
+
+**Results**
+
+| Model | \# of parameters | FLOPs | Accuracy |
+|---|---|---|---|
+| MLP-3-1 | 13064 |  | 0.9486 |
+| MLP-3-2 | 20650 |  | 0.9556 |
+| MLP-3-3 | 30156 |  | 0.9583 |
+| MLP-3-4 | 41720 |  | 0.9646 |
+| B-MLP-3-1 | 728 |  | 0.8396 |
+| B-MLP-3-2 | 1150 |  | 0.8665 |
+| B-MLP-3-3 | 1680 |  | 0.8884 |
+| B-MLP-3-4 | 2324 |  | 0.8925 |
+| R-MLP-3-1 | 728 |  | 0.8289 |
+| R-MLP-3-2 | 1150 |  | 0.8462 |
+| R-MLP-3-3 | 1680 |  | 0.8837 |
+| R-MLP-3-4 | 2324 |  | 0.8831 |
+
+![](./mlp/fig_mlp_experiments.png)
+
+![](./mlp/fig_mlp_experiments_sparse_only.png)
 
 #### 5.1.2 ResNet based models
 

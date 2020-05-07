@@ -7,6 +7,9 @@ sys.path.append('../bibd')
 from bibd_layer import generate_fake_bibd_mask
 
 
+TIME = '20200507_152923'
+
+
 TOTAL_NUM = 4
 SELECTED_INDEX_LIST = [0, 1, 2, 3]
 MODEL_INDEX_LIST = [0, 1, 2]
@@ -15,7 +18,7 @@ numberOfParam_ndarray = np.zeros((3, TOTAL_NUM), dtype=float)
 accuracy_ndarray = np.zeros((3, TOTAL_NUM), dtype=float)
 name_list = ['MLP', 'B-MLP', 'R-MLP']
 
-filename = 'mlp_experiments_{}.p'.format('20200507_152923')
+filename = 'mlp_experiments_{}.p'.format(TIME)
 experiment = pickle.load(open(filename, "rb"))
 
 # print('epoch: 100')
@@ -99,3 +102,15 @@ ax.set_ylabel(r'Accuracy', fontsize=20)
 
 fig.savefig('fig_mlp_experiments_sparse_only.png', format='png', pad_inches=0)
 fig.savefig('fig_mlp_experiments_sparse_only.eps', format='eps', pad_inches=0)
+
+log_file = open('./log/mlp_experiments_plot_{}.log'.format(TIME), 'w')
+
+for rowIndex, row in enumerate(experiment.acc_ndarray):
+    name = experiment.model_name_array[rowIndex]
+    accuracy = row[-1]
+
+    modelIndex = rowIndex // TOTAL_NUM
+    log_file.write('{}, {:.4f}, {:.0f}\n'.format(name, accuracy, numberOfParam_ndarray[modelIndex][rowIndex % TOTAL_NUM]))
+
+log_file.close()
+print('Log written to the file: ./log/mlp_experiments_plot_{}.log'.format(TIME))

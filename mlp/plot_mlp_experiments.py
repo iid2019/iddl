@@ -7,15 +7,15 @@ sys.path.append('../bibd')
 from bibd_layer import generate_fake_bibd_mask
 
 
-TOTAL_NUM = 3
-SELECTED_INDEX_LIST = [0, 1, 2]
+TOTAL_NUM = 4
+SELECTED_INDEX_LIST = [0, 1, 2, 3]
 MODEL_INDEX_LIST = [0, 1, 2]
 
 numberOfParam_ndarray = np.zeros((3, TOTAL_NUM), dtype=float)
 accuracy_ndarray = np.zeros((3, TOTAL_NUM), dtype=float)
 name_list = ['MLP', 'B-MLP', 'R-MLP']
 
-filename = 'mlp_experiments_{}.p'.format('20200507_150006')
+filename = 'mlp_experiments_{}.p'.format('20200507_152923')
 experiment = pickle.load(open(filename, "rb"))
 
 # print('epoch: 100')
@@ -40,7 +40,7 @@ input_dim = 28*28*1
 output_dim = 10
 
 # layers_list = [layers2, layers3, layers4, layers5, layers7]
-layers_list = [layers3_1, layers3_2, layers3_3]
+layers_list = [layers3_1, layers3_2, layers3_3, layers3_4]
 def numberOfParam_mlp(layers):
     count = 0
     for index, dim in enumerate(layers):
@@ -70,6 +70,8 @@ print(numberOfParam_ndarray)
 
 color_list = ['#22a7f0', '#cf000f', '#03a678']
 shape_list = ['-o', '-^', '-s']
+
+# Plot all models
 fig, ax = plt.subplots(figsize=(10,6), dpi=200)
 plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
 plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
@@ -82,3 +84,18 @@ ax.set_ylabel(r'Accuracy', fontsize=20)
 
 fig.savefig('fig_mlp_experiments.png', format='png', pad_inches=0)
 fig.savefig('fig_mlp_experiments.eps', format='eps', pad_inches=0)
+
+# Plot only sparse models: B-MLP and R-MLP
+MODEL_INDEX_LIST = [1, 2]
+fig, ax = plt.subplots(figsize=(10,6), dpi=200)
+plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
+plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
+for i in MODEL_INDEX_LIST:
+    ax.plot(numberOfParam_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i])
+ax.legend(fontsize=20)
+ax.set_title(r'Accuracy v.s. # of parameters', fontsize=24)
+ax.set_xlabel(r'# of parameters', fontsize=20)
+ax.set_ylabel(r'Accuracy', fontsize=20)
+
+fig.savefig('fig_mlp_experiments_sparse_only.png', format='png', pad_inches=0)
+fig.savefig('fig_mlp_experiments_sparse_only.eps', format='eps', pad_inches=0)

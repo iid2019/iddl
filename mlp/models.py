@@ -136,9 +136,10 @@ layers4 = [16, 32, 16]
 layers5 = [16, 32, 32, 16]
 layers7 = [16, 32, 32, 32, 32, 16]
 
-layers3_1 = [16, 16]
-layers3_2 = [32, 32]
-layers3_3 = [64, 64]
+layers3_1 = [16, 20]
+layers3_2 = [25, 30]
+layers3_3 = [36, 42]
+layers3_4 = [49, 56]
 
 
 def Mlp2(input_dim, output_dim, name='MLP-2'):

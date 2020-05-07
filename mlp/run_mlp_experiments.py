@@ -57,12 +57,15 @@ if torch.cuda.is_available():
     model_list.append(BaseMlp(input_dim, output_dim, layers3_1, nn.Linear, name='MLP-3-1').to(device))
     model_list.append(BaseMlp(input_dim, output_dim, layers3_2, nn.Linear, name='MLP-3-2').to(device))
     model_list.append(BaseMlp(input_dim, output_dim, layers3_3, nn.Linear, name='MLP-3-3').to(device))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_4, nn.Linear, name='MLP-3-4').to(device))
     model_list.append(BaseMlp(input_dim, output_dim, layers3_1, BibdLinear, name='B-MLP-3-1').to(device))
     model_list.append(BaseMlp(input_dim, output_dim, layers3_2, BibdLinear, name='B-MLP-3-2').to(device))
     model_list.append(BaseMlp(input_dim, output_dim, layers3_3, BibdLinear, name='B-MLP-3-3').to(device))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_4, BibdLinear, name='B-MLP-3-4').to(device))
     model_list.append(BaseMlp(input_dim, output_dim, layers3_1, RandomSparseLinear, name='R-MLP-3-1').to(device))
     model_list.append(BaseMlp(input_dim, output_dim, layers3_2, RandomSparseLinear, name='R-MLP-3-2').to(device))
     model_list.append(BaseMlp(input_dim, output_dim, layers3_3, RandomSparseLinear, name='R-MLP-3-3').to(device))
+    model_list.append(BaseMlp(input_dim, output_dim, layers3_4, RandomSparseLinear, name='R-MLP-3-4').to(device))
 else:
     print('CUDA is not available. Stopped.')
 print('model_list: ')
@@ -70,7 +73,7 @@ for model in model_list:
     print('   {}'.format(model.name))
 
 
-experiment = Experiment(n_epoch=30)
+experiment = Experiment(n_epoch=10)
 for model in model_list:
     experiment.run_model(model, train_loader, validation_loader)
 

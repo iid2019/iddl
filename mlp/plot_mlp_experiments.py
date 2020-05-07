@@ -1,21 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-from models import layers2, layers3, layers4, layers5, layers7
+from models import *
 import sys
 sys.path.append('../bibd')
 from bibd_layer import generate_fake_bibd_mask
 
 
-TOTAL_NUM = 5
-SELECTED_INDEX_LIST = [0, 1, 2, 3, 4]
+TOTAL_NUM = 3
+SELECTED_INDEX_LIST = [0, 1, 2]
 MODEL_INDEX_LIST = [0, 1, 2]
 
 numberOfParam_ndarray = np.zeros((3, TOTAL_NUM), dtype=float)
 accuracy_ndarray = np.zeros((3, TOTAL_NUM), dtype=float)
 name_list = ['MLP', 'B-MLP', 'R-MLP']
 
-filename = 'mlp_experiments_{}.p'.format('20200507_125503')
+filename = 'mlp_experiments_{}.p'.format('20200507_150006')
 experiment = pickle.load(open(filename, "rb"))
 
 # print('epoch: 100')
@@ -39,7 +39,8 @@ for rowIndex, row in enumerate(experiment.acc_ndarray):
 input_dim = 28*28*1
 output_dim = 10
 
-layers_list = [layers2, layers3, layers4, layers5, layers7]
+# layers_list = [layers2, layers3, layers4, layers5, layers7]
+layers_list = [layers3_1, layers3_2, layers3_3]
 def numberOfParam_mlp(layers):
     count = 0
     for index, dim in enumerate(layers):

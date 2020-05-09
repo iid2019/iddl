@@ -74,7 +74,7 @@ print('==> Building model..')
 # net = ResNet_3exit()
 net = ResNet_EE()
 net = net.to(device)
-model_name = 'EE'
+model_name = 'EE_check'
 
 print(net)
 

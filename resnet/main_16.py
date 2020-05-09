@@ -19,7 +19,7 @@ from models.resnet_gc import *
 from models.resnet_bibd_gc import *
 from models.resnet_exit import *
 from models.resnet_ENS_BIBD import *
-from models.resnet_bibd_gc import *
+from models.resnet_bibd_gc_16 import *
 from models.resnet_GC_ENS_BIBD import *
 
 import time
@@ -68,7 +68,7 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 # Model
 print('==> Building model..')
 # net = VGG('VGG19')
-net = ResNet18()
+# net = ResNet34()
 # net = GEBResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
@@ -83,10 +83,10 @@ net = ResNet18()
 # net = EfficientNetB0()
 # net = ResNeXt29_2x64d_bibd()
 # net = ResNet_gc()
-# net = BResNet18()
+net = ResNet_34_bibd_gc_16()
 # net = ResNet_bibd_gc()
 net = net.to(device)
-model_name = 'ResNet18' # the records will be saved in 
+model_name = 'ResNet34_BIBD_GC_16' # the records will be saved in 
 
 print(net)
 
@@ -117,10 +117,12 @@ def train(epoch, records):
     train_loss = 0
     correct = 0
     total = 0
+    rec_time = 0
     for batch_idx, (inputs, targets) in enumerate(trainloader):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
-        outputs = net(inputs)
+        outputs, t = net(inputs)
+        rec_time += t    # the inference time
         loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()
@@ -133,7 +135,7 @@ def train(epoch, records):
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
     en_time = time.time()
-    records += [[loss.data.tolist(), correct/total, (en_time - st_time) * 1000]]
+    records += [[loss.data.tolist(), correct/total, rec_time * 1000]]
 
 def test(epoch, records):
     global best_acc
@@ -142,11 +144,12 @@ def test(epoch, records):
     test_loss = 0
     correct = 0
     total = 0
+    rec_time = 0
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
             inputs, targets = inputs.to(device), targets.to(device)
-            outputs = net(inputs)
-            outputs = outputs
+            outputs, t = net(inputs)
+            rec_time += t    # the inference time
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
@@ -171,7 +174,7 @@ def test(epoch, records):
             os.mkdir('checkpoint')
         torch.save(state, './checkpoint/ckpt.pth')
         best_acc = acc
-    records += [[loss.data.tolist(), correct/total, (en_time - st_time) * 1000]]
+    records += [[loss.data.tolist(), correct/total, rec_time * 1000]]
 
 train_records = [] # train_records[i]: the training loss and accuracy of ith exit
 test_records = []

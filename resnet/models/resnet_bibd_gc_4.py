@@ -5,11 +5,11 @@ Reference:
     Deep Residual Learning for Image Recognition. arXiv:1512.03385
 '''
 import torch
+import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-import time
 import sys
+import time
 sys.path.append('../bibd')
 from bibd_layer import BibdConv2d
 
@@ -19,9 +19,9 @@ class BBasicBlock(nn.Module):
 
     def __init__(self, in_planes, planes, stride=1):
         super(BBasicBlock, self).__init__()
-        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, groups=2)
+        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, groups=4)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1, groups=2)
+        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1, groups=4)
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
@@ -116,10 +116,10 @@ class BResNet(nn.Module):
         return np.array([out, s0_timestamp - s_timestamp])
 
 
-def ResNet_bibd_gc():
+def ResNet_bibd_gc_4():
     return BResNet(BBasicBlock, [2,2,2,2])
 
-def ResNet_34_bibd_gc_2():
+def ResNet_34_bibd_gc_4():
     return BResNet(BBasicBlock, [3,4,6,3])
 
 def test():

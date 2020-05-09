@@ -44,18 +44,17 @@ class RBasicBlock(nn.Module):
         return out
 
 
-# TODO: Modify RBottleneck to use random sparsification
 class RBottleneck(nn.Module):
     expansion = 4
 
 
     def __init__(self, in_planes, planes, stride=1):
         super(RBottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
+        self.conv1 = nn.RandomSparseConv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv2 = nn.RandomSparseConv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(planes, self.expansion*planes, kernel_size=1, bias=False)
+        self.conv3 = nn.RandomSparseConv2d(planes, self.expansion*planes, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(self.expansion*planes)
 
         self.shortcut = nn.Sequential()
@@ -76,9 +75,11 @@ class RBottleneck(nn.Module):
 
 
 class RResNet(nn.Module):
-
-    def __init__(self, block, num_blocks, num_classes=10):
+    def __init__(self, block, num_blocks, num_classes=10, name='R-ResNet'):
         super(RResNet, self).__init__()
+
+        self.name = name
+
         self.in_planes = 64
 
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
@@ -120,27 +121,21 @@ class RResNet(nn.Module):
         return out
 
 
-def RResNet18():
-    return RResNet(RBasicBlock, [2,2,2,2])
+def RResNet18(name='R-ResNet-18'):
+    return RResNet(RBasicBlock, [2, 2, 2, 2], name=name)
 
 
-def RResNet34():
-    return RResNet(RBasicBlock, [3,4,6,3])
+def RResNet34(name='R-ResNet-34'):
+    return RResNet(RBasicBlock, [3, 4, 6, 3], name=name)
 
 
-def RResNet50():
-    return RResNet(RBottleneck, [3,4,6,3])
+def RResNet50(name='R-ResNet-50'):
+    return RResNet(RBottleneck, [3, 4, 6, 3], name=name)
 
 
-def RResNet101():
-    return RResNet(RBottleneck, [3,4,23,3])
+def RResNet101(name='R-ResNet-101'):
+    return RResNet(RBottleneck, [3, 4, 23, 3], name=name)
 
 
-def RResNet152():
-    return RResNet(RBottleneck, [3,8,36,3])
-
-
-def test():
-    net = RResNet18()
-    y = net(torch.randn(1,3,32,32))
-    print(y.size())
+def RResNet152(name='R-ResNet-152'):
+    return RResNet(RBottleneck, [3, 8, 36, 3], name=name)

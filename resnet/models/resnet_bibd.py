@@ -11,6 +11,7 @@ import sys
 sys.path.append('../bibd')
 from bibd_layer import BibdConv2d
 
+
 class BBasicBlock(nn.Module):
     expansion = 1
 
@@ -38,17 +39,17 @@ class BBasicBlock(nn.Module):
         return out
 
 
-class Bottleneck(nn.Module):
+class BBottleneck(nn.Module):
     expansion = 4
 
 
     def __init__(self, in_planes, planes, stride=1):
         super(Bottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
+        self.conv1 = nn.BibdConv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv2 = nn.BibdConv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(planes, self.expansion*planes, kernel_size=1, bias=False)
+        self.conv3 = nn.BibdConv2d(planes, self.expansion*planes, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(self.expansion*planes)
 
         self.shortcut = nn.Sequential()
@@ -69,8 +70,11 @@ class Bottleneck(nn.Module):
 
 
 class BResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10):
+    def __init__(self, block, num_blocks, num_classes=10, name='B-ResNet'):
         super(BResNet, self).__init__()
+
+        self.name = name
+
         self.in_planes = 64
 
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
@@ -112,27 +116,21 @@ class BResNet(nn.Module):
         return out
 
 
-def BResNet18():
-    return BResNet(BBasicBlock, [2,2,2,2])
+def BResNet18(name='B-ResNet-18'):
+    return BResNet(BBasicBlock, [2, 2, 2, 2], name=name)
 
 
-def BResNet34():
-    return BResNet(BBasicBlock, [3,4,6,3])
+def BResNet34(name='B-ResNet-34'):
+    return BResNet(BBasicBlock, [3, 4, 6, 3], name=name)
 
 
-def BResNet50():
-    return BResNet(BBottleneck, [3,4,6,3])
+def BResNet50(name='B-ResNet-50'):
+    return BResNet(BBottleneck, [3, 4, 6, 3], name=name)
 
 
-def BResNet101():
-    return BResNet(BBottleneck, [3,4,23,3])
+def BResNet101(name='B-ResNet-101'):
+    return BResNet(BBottleneck, [3, 4, 23, 3], name=name)
 
 
-def BResNet152():
-    return BResNet(BBottleneck, [3,8,36,3])
-
-
-def test():
-    net = BResNet18()
-    y = net(torch.randn(1,3,32,32))
-    print(y.size())
+def BResNet152(name='B-ResNet-152'):
+    return BResNet(BBottleneck, [3, 8, 36, 3], name=name)

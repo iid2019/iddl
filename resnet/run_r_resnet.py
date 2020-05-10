@@ -68,7 +68,7 @@ if device == 'cuda':
 
 
 experiment = Experiment(n_epoch=30)
-experiment.run_model(net, 'R-ResNet-18', trainloader, testloader)
+experiment.run_model(net, trainloader, testloader, name='R-ResNet-18')
 
 # Save the data record
 pickle.dump(experiment.loss_ndarray, open('loss_ndarray.p', "wb"))

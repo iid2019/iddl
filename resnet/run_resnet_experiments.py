@@ -14,6 +14,7 @@ import argparse
 
 from utils import progress_bar
 from utils import format_time
+from models.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
 from models.r_resnet import RResNet18, RResNet34, RResNet50, RResNet101, RResNet152
 from models.resnet_bibd import BResNet18, BResNet34, BResNet50, BResNet101, BResNet152
 
@@ -21,11 +22,19 @@ import time
 import numpy as np
 
 from experiment import Experiment
-
 import pickle
+from datetime import datetime
 
 
-print('ResNet experiments started')
+# Hyperparameters
+BATCH_SIZE = 128
+N_EPOCH = 30
+print('Hyperparameters:')
+print('    BATCH_SIZE: {:d}'.format(BATCH_SIZE))
+print('    N_EPOCH: {:d}'.format(N_EPOCH))
+
+
+print('ResNet experiments started.')
 
 # Use start time for the filename of the pickled file
 date_time = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -35,11 +44,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print('Using PyTorch version:', torch.__version__, ' Device:', device)
 
 
-best_acc = 0  # best test accuracy
-start_epoch = 0  # start from epoch 0 or last checkpoint epoch
-
-# Data
-print('>>>> Preparing the datasets')
+print('Preparing the datasets...')
 transform_train = transforms.Compose([
     transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
@@ -50,48 +55,43 @@ transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
 ])
-
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True, num_workers=2)
-
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE, shuffle=True, num_workers=2)
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
-testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
-
-# Model
-print('==> Building model..')
-net = RResNet18()
-net = net.to(device)
-model_name = 'R-ResNet-18' # the records will be saved in 
-
-print(net)
-
-# # This may not work on the CS280 AI cluster
-# if device == 'cuda':
-#     print('Running using torch.nn.DataParallel...')
-#     net = torch.nn.DataParallel(net)
-#     cudnn.benchmark = True
+testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False, num_workers=2)
 
 
-# experiment = Experiment(n_epoch=30)
-# experiment.run_model(net, 'R-ResNet-18', trainloader, testloader)
+print('Building the models...')
+model_list = []
+if torch.cuda.is_available():
+    # ResNet models
+    model_list.append(ResNet18().to(device))
+    model_list.append(ResNet34().to(device))
+    model_list.append(ResNet50().to(device))
 
-# # Save the data record
-# pickle.dump(experiment.loss_ndarray, open('loss_ndarray.p', "wb"))
-# print('experiment.loss_ndarray dumped to file: loss_ndarray.p')
-# pickle.dump(experiment.acc_ndarray, open('acc_ndarray.p', "wb"))
-# print('experiment.loss_ndarray dumped to file: acc_ndarray.p')
+    # B-ResNet models
+    model_list.append(BResNet18().to(device))
+    model_list.append(BResNet34().to(device))
+    model_list.append(BResNet50().to(device))
 
-# fig_loss, fig_acc = experiment.plot(loss_title='Training loss v.s. Epoch on CIFAR10', acc_title='Test accuracy v.s. Epoch on CIFAR10')
+    # R-ResNet models
+    model_list.append(RResNet18().to(device))
+    model_list.append(RResNet34().to(device))
+    model_list.append(RResNet50().to(device))
+else:
+    print('CUDA is not available. Stopped.')
+print('model_list: ')
+for index, model in enumerate(model_list):
+    print('   {:d}. {}'.format(index + 1, model.name))
+
+experiment = Experiment(n_epoch=N_EPOCH)
+for model in model_list:
+    experiment.run_model(model, trainloader, testloader)
 
 
-# # Save the plots
-# import matplotlib.pyplot as plt
+# Save all the experiment data
+filename = 'resnet_experiments_{}.pkl'.format(date_time)
+pickle.dump(experiment, open(filename, "wb"))
+print('The Experiment instance experiment dumped to the file: {}'.format(filename))
 
-
-# fig_loss.set_size_inches((16, 12))
-# fig_loss.set_dpi(100)
-# fig_acc.set_size_inches((16, 12))
-# fig_acc.set_dpi(100)
-
-# fig_loss.savefig('fig_loss_rresnet_cifar10.eps', format='eps', pad_inches=0)
-# fig_acc.savefig('fig_acc_rresnet_cifar10.eps', format='eps', pad_inches=0)
+print('ResNet experiments completed at {}'.format(datetime.now().strftime("%Y%m%d_%H%M%S")))

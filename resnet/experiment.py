@@ -32,7 +32,7 @@ class Experiment():
         return
 
     
-    def run_model(self, model, name, train_loader, validation_loader):
+    def run_model(self, model, train_loader, validation_loader, name=None):
         # Define the optimizer and loss function
         optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
         criterion = nn.CrossEntropyLoss()
@@ -47,6 +47,8 @@ class Experiment():
         end_time = time.time() # End time
         
         # Store the name of the model
+        if name is None:
+            name = model.name
         self.model_name_array = np.append(self.model_name_array, name)
 
         # Store the time

@@ -53,13 +53,19 @@ model_dict = {
 parser = argparse.ArgumentParser()
 parser.add_argument('-m', '--model', type=str, help='The only one model you want to run.')
 parser.add_argument('-n', '--name', type=str, help='The name of the pickled files, which will be model_name_array_{name}.pkl accuracy_array_{name}.pkl')
+parser.add_argument('-g', '--gpu', type=int, default=0, help='The GPU index the program will run on. Starting from 0.')
 args = parser.parse_args()
 model_name = args.model
 pickle_name = args.name
+gpu_index = args.gpu
 
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print('Using PyTorch version:', torch.__version__, ' Device:', device)
+if torch.cuda.is_available():
+    device = torch.device("cuda:{}".format(gpu_index))
+    print('CUDA available. PyTorch version:', torch.__version__, ' Device:', device)
+else:
+    print('CUDA is not available. Stopped.')
+    sys.exit()
 
 
 print('Preparing the datasets...')
@@ -78,27 +84,23 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE, shuff
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
 testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False, num_workers=2)
 
-experiment = Experiment(n_epoch=N_EPOCH)
-if torch.cuda.is_available():
-    experiment.run_model(model_dict[model_name]().to(device), trainloader, testloader)
+experiment = Experiment(n_epoch=N_EPOCH, gpu_index=gpu_index)
+experiment.run_model(model_dict[model_name]().to(device), trainloader, testloader)
 
-    # # ResNet models
-    # experiment.run_model(ResNet18().to(device), trainloader, testloader)
-    # experiment.run_model(ResNet34().to(device), trainloader, testloader)
-    # experiment.run_model(ResNet50().to(device), trainloader, testloader)
+# # ResNet models
+# experiment.run_model(ResNet18().to(device), trainloader, testloader)
+# experiment.run_model(ResNet34().to(device), trainloader, testloader)
+# experiment.run_model(ResNet50().to(device), trainloader, testloader)
 
-    # # B-ResNet models
-    # experiment.run_model(BResNet18().to(device), trainloader, testloader)
-    # experiment.run_model(BResNet34().to(device), trainloader, testloader)
-    # experiment.run_model(BResNet50().to(device), trainloader, testloader)
+# # B-ResNet models
+# experiment.run_model(BResNet18().to(device), trainloader, testloader)
+# experiment.run_model(BResNet34().to(device), trainloader, testloader)
+# experiment.run_model(BResNet50().to(device), trainloader, testloader)
 
-    # # R-ResNet models
-    # experiment.run_model(RResNet18().to(device), trainloader, testloader)
-    # experiment.run_model(RResNet34().to(device), trainloader, testloader)
-    # experiment.run_model(RResNet50().to(device), trainloader, testloader)
-else:
-    print('CUDA is not available. Stopped.')
-    sys.exit()
+# # R-ResNet models
+# experiment.run_model(RResNet18().to(device), trainloader, testloader)
+# experiment.run_model(RResNet34().to(device), trainloader, testloader)
+# experiment.run_model(RResNet50().to(device), trainloader, testloader)
 
 
 # Save all the experiment data

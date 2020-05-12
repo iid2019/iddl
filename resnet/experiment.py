@@ -11,7 +11,7 @@ from term_utils import bcolors
 
 
 class Experiment():
-    def __init__(self, n_epoch):
+    def __init__(self, n_epoch, gpu_index=0):
         self.n_epoch = n_epoch
         self.loss_ndarray = np.zeros((0, n_epoch), dtype=float)
         self.acc_ndarray = np.zeros((0, n_epoch), dtype=float)
@@ -21,7 +21,7 @@ class Experiment():
         self.color_list = ['#22a7f0', '#cf000f', '#03a678']
 
         if torch.cuda.is_available():
-            self.device = torch.device('cuda')
+            self.device = torch.device("cuda:{:d}".format(gpu_index))
         else:
             self.device = torch.device('cpu')
             

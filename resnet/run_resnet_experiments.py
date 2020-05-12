@@ -10,6 +10,7 @@ import torchvision
 import torchvision.transforms as transforms
 
 import os
+from os import path
 import argparse
 
 from utils import progress_bar
@@ -24,6 +25,12 @@ import numpy as np
 from experiment import Experiment
 import pickle
 from datetime import datetime
+import sys
+
+
+# Use start time for the filename of the pickled file
+# date_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+print('ResNet experiments started at {}.'.format(datetime.now().strftime("%Y%m%d_%H%M%S")))
 
 
 # Hyperparameters
@@ -34,10 +41,21 @@ print('    BATCH_SIZE: {:d}'.format(BATCH_SIZE))
 print('    N_EPOCH: {:d}'.format(N_EPOCH))
 
 
-print('ResNet experiments started.')
+# Dictionary for argument to model
+model_dict = {
+    'ResNet-18': ResNet18, 'ResNet-34': ResNet34, 'ResNet-50': ResNet50,
+    'B-ResNet-18': BResNet18, 'B-ResNet-34': BResNet34, 'B-ResNet-50': BResNet50,
+    'R-ResNet-18': RResNet18, 'R-ResNet-34': RResNet34, 'R-ResNet-50': RResNet50,
+}
 
-# Use start time for the filename of the pickled file
-date_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+# For parsing command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('-m', '--model', type=str, help='The only one model you want to run.')
+parser.add_argument('-n', '--name', type=str, help='The name of the pickled files, which will be model_name_array_{name}.pkl accuracy_array_{name}.pkl')
+args = parser.parse_args()
+model_name = args.model
+pickle_name = args.name
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -62,27 +80,51 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE, shuffle
 
 experiment = Experiment(n_epoch=N_EPOCH)
 if torch.cuda.is_available():
-    # ResNet models
-    experiment.run_model(ResNet18().to(device), trainloader, testloader)
-    experiment.run_model(ResNet34().to(device), trainloader, testloader)
-    experiment.run_model(ResNet50().to(device), trainloader, testloader)
+    experiment.run_model(model_dict[model_name]().to(device), trainloader, testloader)
 
-    # B-ResNet models
-    experiment.run_model(BResNet18().to(device), trainloader, testloader)
-    experiment.run_model(BResNet34().to(device), trainloader, testloader)
-    experiment.run_model(BResNet50().to(device), trainloader, testloader)
+    # # ResNet models
+    # experiment.run_model(ResNet18().to(device), trainloader, testloader)
+    # experiment.run_model(ResNet34().to(device), trainloader, testloader)
+    # experiment.run_model(ResNet50().to(device), trainloader, testloader)
 
-    # R-ResNet models
-    experiment.run_model(RResNet18().to(device), trainloader, testloader)
-    experiment.run_model(RResNet34().to(device), trainloader, testloader)
-    experiment.run_model(RResNet50().to(device), trainloader, testloader)
+    # # B-ResNet models
+    # experiment.run_model(BResNet18().to(device), trainloader, testloader)
+    # experiment.run_model(BResNet34().to(device), trainloader, testloader)
+    # experiment.run_model(BResNet50().to(device), trainloader, testloader)
+
+    # # R-ResNet models
+    # experiment.run_model(RResNet18().to(device), trainloader, testloader)
+    # experiment.run_model(RResNet34().to(device), trainloader, testloader)
+    # experiment.run_model(RResNet50().to(device), trainloader, testloader)
 else:
     print('CUDA is not available. Stopped.')
+    sys.exit()
 
 
 # Save all the experiment data
-filename = 'resnet_experiments_{}.pkl'.format(date_time)
-pickle.dump(experiment, open(filename, "wb"))
-print('The Experiment instance experiment dumped to the file: {}'.format(filename))
+# filename = 'resnet_experiments_{}.pkl'.format(date_time)
+# pickle.dump(experiment, open(filename, "wb"))
+# print('The Experiment instance experiment dumped to the file: {}'.format(filename))
 
-print('ResNet experiments completed at {}'.format(datetime.now().strftime("%Y%m%d_%H%M%S")))
+# Persist the test accuracy
+model_filename = 'model_name_array_{}.pkl'.format(pickle_name)
+acc_filename = 'accuracy_array_{}.pkl'.format(pickle_name)
+if path.exists(model_filename):
+    model_name_array = pickle.load(open(model_filename, "rb"))
+else:
+    model_name_array = np.array([], dtype=str)
+if path.exists(acc_filename):
+    accuracy_array = pickle.load(open(acc_filename, "rb"))
+else:
+    accuracy_array = np.array([], dtype=float)
+model_name_array = np.append(model_name_array, experiment.model_name_array[-1])
+accuracy_array = np.append(accuracy_array, experiment.acc_ndarray[-1][-1])
+pickle.dump(model_name_array, open(model_filename, "wb"))
+pickle.dump(accuracy_array, open(acc_filename, "wb"))
+print('Data in {}:'.format(model_filename))
+print(model_name_array)
+print('Data in {}:'.format(acc_filename))
+print(accuracy_array)
+print('Data has been dumped to files: {}, {}'.format(model_filename, acc_filename))
+
+print('ResNet experiment for the model {} completed at {}.'.format(model_name, datetime.now().strftime("%Y%m%d_%H%M%S")))

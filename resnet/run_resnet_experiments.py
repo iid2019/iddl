@@ -28,7 +28,7 @@ from datetime import datetime
 
 # Hyperparameters
 BATCH_SIZE = 128
-N_EPOCH = 30
+N_EPOCH = 1
 print('Hyperparameters:')
 print('    BATCH_SIZE: {:d}'.format(BATCH_SIZE))
 print('    N_EPOCH: {:d}'.format(N_EPOCH))
@@ -60,33 +60,24 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE, shuff
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
 testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False, num_workers=2)
 
-
-print('Building the models...')
-model_list = []
+experiment = Experiment(n_epoch=N_EPOCH)
 if torch.cuda.is_available():
     # ResNet models
-    model_list.append(ResNet18().to(device))
-    model_list.append(ResNet34().to(device))
-    model_list.append(ResNet50().to(device))
+    experiment.run_model(ResNet18().to(device), trainloader, testloader)
+    experiment.run_model(ResNet34().to(device), trainloader, testloader)
+    experiment.run_model(ResNet50().to(device), trainloader, testloader)
 
     # B-ResNet models
-    model_list.append(BResNet18().to(device))
-    model_list.append(BResNet34().to(device))
-    model_list.append(BResNet50().to(device))
+    experiment.run_model(BResNet18().to(device), trainloader, testloader)
+    experiment.run_model(BResNet34().to(device), trainloader, testloader)
+    experiment.run_model(BResNet50().to(device), trainloader, testloader)
 
     # R-ResNet models
-    model_list.append(RResNet18().to(device))
-    model_list.append(RResNet34().to(device))
-    model_list.append(RResNet50().to(device))
+    experiment.run_model(RResNet18().to(device), trainloader, testloader)
+    experiment.run_model(RResNet34().to(device), trainloader, testloader)
+    experiment.run_model(RResNet50().to(device), trainloader, testloader)
 else:
     print('CUDA is not available. Stopped.')
-print('model_list: ')
-for index, model in enumerate(model_list):
-    print('   {:d}. {}'.format(index + 1, model.name))
-
-experiment = Experiment(n_epoch=N_EPOCH)
-for model in model_list:
-    experiment.run_model(model, trainloader, testloader)
 
 
 # Save all the experiment data

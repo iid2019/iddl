@@ -22,8 +22,6 @@ class Experiment():
 
         if torch.cuda.is_available():
             self.device = torch.device('cuda')
-            # cudnn.benchmark = True
-            # print('Cuda is available. Running the model using DataParallel...')
         else:
             self.device = torch.device('cpu')
             
@@ -32,7 +30,17 @@ class Experiment():
         return
 
     
-    def run_model(self, model, train_loader, validation_loader, name=None):
+    def run_model(self, model, train_loader, validation_loader, name=None, log_interval=500):
+        # Store the name of the model
+        if name is None:
+            name = model.name
+        self.model_name_array = np.append(self.model_name_array, name)
+
+        length = len(name) + 19 + 8
+        print(bcolors.OKBLUE + '<' * length + bcolors.ENDC)
+        print('    ' + 'Running the model: {}'.format(name) + '    ')
+        print(bcolors.OKBLUE + '-' * length + bcolors.ENDC)
+
         # Define the optimizer and loss function
         optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
         criterion = nn.CrossEntropyLoss()
@@ -42,14 +50,9 @@ class Experiment():
         
         begin_time = time.time() # Begin time
         for epoch in range(1, self.n_epoch + 1):
-            self.__train(model, optimizer, criterion, train_loader, epoch, log_interval=500)
+            self.__train(model, optimizer, criterion, train_loader, epoch, log_interval=log_interval)
             self.__validate(model, criterion, validation_loader, loss_list, acc_list)
         end_time = time.time() # End time
-        
-        # Store the name of the model
-        if name is None:
-            name = model.name
-        self.model_name_array = np.append(self.model_name_array, name)
 
         # Store the time
         self.time_array = np.append(self.time_array, end_time - begin_time)
@@ -63,10 +66,22 @@ class Experiment():
         # Print total time usage
         time_str = format_time(end_time - begin_time)
         length = len(name) + len(time_str) + 23 + 4
-        print('=' * length)
-        print('  ' + bcolors.OKGREEN + bcolors.BOLD + 'Time usage for model ' + bcolors.UNDERLINE + bcolors.OKBLUE + name + bcolors.ENDC + ': ' + time_str + '  ')
-        print('=' * length)
+        print(bcolors.OKGREEN + '-' * length + bcolors.ENDC)
+        print('  ' + 'Time usage for model '+ name + ': ' + time_str + '  ')
+        print(bcolors.OKGREEN + '>' * length + bcolors.ENDC)
         print()
+
+        torch.cuda.empty_cache()
+        # model = model.cpu()
+        del model, train_loader, validation_loader, optimizer, criterion
+        torch.cuda.empty_cache()
+        # print('CUDA memory cache released.')
+
+        # print('CUDA memory allocated: {:.2f}MB'.format(torch.cuda.memory_allocated() / 1024))
+        # print('CUDA memory cached: {:.2f}MB'.format(torch.cuda.memory_cached() / 1024))
+
+        # This is PyTorch 1.3.1, which does not support torch.cuda.memory_summary()
+        # print(torch.cuda.memory_summary())
 
         return
 
@@ -100,8 +115,13 @@ class Experiment():
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader), loss.data.item()))
+            
+            del data, target, output, loss
+
+        del model, optimizer, criterion, train_loader
 
 
+    @torch.no_grad()
     def __validate(self, model, criterion, validation_loader, loss_list, acc_list):
         model.eval()
         val_loss, correct = 0, 0
@@ -109,9 +129,11 @@ class Experiment():
             data = data.to(self.device)
             target = target.to(self.device)
             output = model(data)
-            val_loss += criterion(output, target).data.item()
+            val_loss += criterion(output, target).data.cpu().item()
             pred = output.data.max(1)[1] # Get the index of the max log-probability
             correct += pred.eq(target.data).cpu().sum()
+
+            del data, target, output
 
         val_loss /= len(validation_loader)
         loss_list.append(val_loss)
@@ -121,6 +143,8 @@ class Experiment():
         
         print('\nValidation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
             val_loss, correct, len(validation_loader.dataset), accuracy * 100.0))
+
+        del model, criterion, validation_loader
 
 
     def plot(self, loss_title='Loss v.s. Epoch', acc_title='Accuracy v.s. Epoch'):

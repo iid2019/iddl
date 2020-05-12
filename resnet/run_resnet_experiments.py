@@ -35,7 +35,7 @@ print('ResNet experiments started at {}.'.format(datetime.now().strftime("%Y%m%d
 
 # Hyperparameters
 BATCH_SIZE = 128
-N_EPOCH = 1
+N_EPOCH = 30
 print('Hyperparameters:')
 print('    BATCH_SIZE: {:d}'.format(BATCH_SIZE))
 print('    N_EPOCH: {:d}'.format(N_EPOCH))

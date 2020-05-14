@@ -19,7 +19,7 @@ from models.resnet_gc import *
 from models.resnet_bibd_gc import *
 from models.resnet_exit import *
 from models.resnet_exit_BIBD import *
-from models.resnet_exit_gc import *
+from models.resnet_exit_gc_4 import *
 from models.resnet_ENS_EE import *
 from models.resnet_ENS_BIBD_EE import *
 from models.resnet_BIBD_EE_GC import *
@@ -74,7 +74,7 @@ print('==> Building model..')
 # net = ResNet_3exit()
 net = ResNet_EE()
 net = net.to(device)
-model_name = 'EE_check'
+model_name = 'BIBD_GC_EE'
 
 print(net)
 

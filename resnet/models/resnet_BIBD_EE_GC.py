@@ -22,9 +22,9 @@ class BBasicBlock(nn.Module):
 
     def __init__(self, in_planes, planes, stride=1):
         super(BBasicBlock, self).__init__()
-        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, groups=4)
+        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, groups = 4)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1, groups=4)
+        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
@@ -43,17 +43,17 @@ class BBasicBlock(nn.Module):
         return out
 
 
-class Bottleneck(nn.Module):
+class BBottleneck(nn.Module):
     expansion = 4
 
 
     def __init__(self, in_planes, planes, stride=1):
-        super(Bottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
+        super(BBottleneck, self).__init__()
+        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=1)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=stride, padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(planes, self.expansion*planes, kernel_size=1, bias=False)
+        self.conv3 = BibdConv2d(planes, self.expansion*planes, kernel_size=1)
         self.bn3 = nn.BatchNorm2d(self.expansion*planes)
 
         self.shortcut = nn.Sequential()
@@ -71,7 +71,6 @@ class Bottleneck(nn.Module):
         out += self.shortcut(x)
         out = F.relu(out)
         return out
-
 
 class ResNet(nn.Module):
     def __init__(self, block, num_blocks, num_classes=10):
@@ -130,6 +129,12 @@ class ResNet(nn.Module):
 
 def ResNet_BIBD_GC_EE():
     return ResNet(BBasicBlock, [2,2,2,2])
+
+def ResNet34_BIBD_GC_EE():
+    return ResNet(BBasicBlock, [3, 4, 6, 3])
+
+def ResNet50_BIBD_GC_EE():
+    return ResNet(BBottleneck, [3, 4, 6, 3])
 
 def test():
     net = ResNet_3exit()

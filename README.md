@@ -119,9 +119,9 @@ $ python plot_mlp_experiments.py
 | R-MLP-3-3 | 1680 |  | 0.8837 |
 | R-MLP-3-4 | 2324 |  | 0.8831 |
 
-<img src="./mlp/fig_mlp_experiments.png" style="max-width:60%">
+<img src="./mlp/fig_mlp_experiments.png" style="width:300px;">
 
-<img src="./mlp/fig_mlp_experiments_sparse_only.png" style="max-width:60%">
+<img src="./mlp/fig_mlp_experiments_sparse_only.png" style="width:300px;">
 
 #### 5.1.2 ResNet based models
 
@@ -157,9 +157,9 @@ $ python plot_resnet_experiments.py
 | **BIBD sparsification** | 54.71 | 99.70 | 205.03 |
 | **Random sparsification** | 54.71 | 99.70 | 205.03 |
 
-<img src="./resnet/fig_resnet_experiments.png" style="max-width:60%">
+<img src="./resnet/fig_resnet_experiments.png" style="width:300px;">
 
-<img src="./resnet/fig_resnet_experiments_sparse_only.png" style="max-width:60%">
+<img src="./resnet/fig_resnet_experiments_sparse_only.png" style="width:300px;">
 
 ## 6. Get involved
 

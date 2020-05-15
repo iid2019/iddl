@@ -13,6 +13,7 @@ Reference:
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import sys
 sys.path.append('../bibd')
 from bibd_layer import BibdConv2d, RandomSparseConv2d
 
@@ -21,7 +22,7 @@ class BasicBlock(nn.Module):
     expansion = 1
 
 
-    def __init__(self, in_planes, planes, conv_layer, stride=1: int):
+    def __init__(self, in_planes, planes, conv_layer, stride=1):
         super(BasicBlock, self).__init__()
 
         self.conv1 = conv_layer(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
@@ -49,7 +50,7 @@ class Bottleneck(nn.Module):
     expansion = 4
 
 
-    def __init__(self, in_planes, planes, conv_layer, stride=1: int):
+    def __init__(self, in_planes, planes, conv_layer, stride=1):
         super(Bottleneck, self).__init__()
 
         self.conv1 = conv_layer(in_planes, planes, kernel_size=1, bias=False)
@@ -77,14 +78,15 @@ class Bottleneck(nn.Module):
 
 
 class SparseResNetV(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10: int, sparsification='none': str, name='SparseResNetV': str):
+    def __init__(self, block, num_blocks, num_classes=10, sparsification='none', name='SparseResNetV'):
         '''Constructor for the SparseResNetV class.
 
         Args:
             block: The building block.
             num_bloks: List[int]. The list of number of blocks.
             num_classes: int. The number of classes for the classification problem.
-            sparsification: str. The sparsification technique that should be used. 'none': no sparsification, 'bibd': BIBD sparsification, 'random': random sparsification.
+            sparsification: str. The sparsification technique that should be used.
+                'none': no sparsification, 'bibd': BIBD sparsification, 'random': random sparsification.
             name: str. The name of this model.
         '''
 
@@ -108,17 +110,16 @@ class SparseResNetV(nn.Module):
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
-        # self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
-        self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1)
-        self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
-        self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
-        self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
+        self.layer1 = self._make_layer(block, 64, num_blocks[0], 1, conv_layer)
+        self.layer2 = self._make_layer(block, 128, num_blocks[1], 2, conv_layer)
+        self.layer3 = self._make_layer(block, 256, num_blocks[2], 2, conv_layer)
+        self.layer4 = self._make_layer(block, 512, num_blocks[3], 2, conv_layer)
 
         self.linear = nn.Linear(512 * block.expansion, num_classes)
 
 
-    def _make_layer(self, block, planes, num_blocks, stride):
+    def _make_layer(self, block, planes, num_blocks, stride, conv_layer):
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
         for stride in strides:
@@ -154,10 +155,25 @@ PARAM_DICT = {
 }
 
 
-def create_resnet(arch: str, sparsification='none': str, num_groups=0: int):
+def create_resnet(arch: str, sparsification='none', num_groups=0, name=None):
     """Creates an instance of the class SparseResNetV with the specified parameters.
 
     Args:
         arch: The base architecture of the ResNet to create.
-            Legal values are [ '18', '34', '50', '101', '152' ], for ResNet-18, ResNet-34, ResNet
+            Legal values are [ '18', '34', '50', '101', '152' ], for ResNet-18, ResNet-34, ResNet-50, ResNet-101, ResNet-152 respectively.
+        sparsification: str. The sparsification technique that should be used.
+            'none': no sparsification, 'bibd': BIBD sparsification, 'random': random sparsification.
+        num_groups: int. The number of groups for vertical partitioning.
+        name: str. The name of the model.
     """
+
+    # Check arch parameter
+    if arch not in PARAM_DICT:
+        raise ValueError("The parameter arch must be one of [ '18', '34', '50', '101', '152' ].")
+
+    params = PARAM_DICT[arch]
+    return SparseResNetV(
+        params[0],
+        params[1],
+        sparsification=sparsification,
+        name=params[2] if name is None else name)

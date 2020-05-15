@@ -273,3 +273,12 @@ class RandomSparseConv2d(torch.nn.Module):
 
     def forward(self, dataInput):
         return execute2DConvolution(self.mask, self.conStride, self.conPad,self.conDil, self.conGroups)(dataInput, self.fpWeight)
+
+
+def bibd_sparsity(in_dim, out_dim):
+    '''
+    Returns the ratio of the number of edges of a BIBD layer to that of a fully-connected layer.
+    '''
+
+
+    return np.sum(generate_fake_bibd_mask(in_dim, out_dim)) / (in_dim * out_dim)

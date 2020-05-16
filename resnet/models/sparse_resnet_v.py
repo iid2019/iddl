@@ -22,12 +22,12 @@ class BasicBlock(nn.Module):
     expansion = 1
 
 
-    def __init__(self, in_planes, planes, conv_layer, stride=1):
+    def __init__(self, in_planes, planes, conv_layer, stride=1, num_groups=1):
         super(BasicBlock, self).__init__()
 
-        self.conv1 = conv_layer(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv1 = conv_layer(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False, groups=num_groups)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = conv_layer(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv2 = conv_layer(planes, planes, kernel_size=3, stride=1, padding=1, bias=False, groups=num_groups)
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
@@ -50,14 +50,14 @@ class Bottleneck(nn.Module):
     expansion = 4
 
 
-    def __init__(self, in_planes, planes, conv_layer, stride=1):
+    def __init__(self, in_planes, planes, conv_layer, stride=1, num_groups=1):
         super(Bottleneck, self).__init__()
 
-        self.conv1 = conv_layer(in_planes, planes, kernel_size=1, bias=False)
+        self.conv1 = conv_layer(in_planes, planes, kernel_size=1, bias=False, groups=num_groups)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = conv_layer(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv2 = conv_layer(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False, groups=num_groups)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = conv_layer(planes, self.expansion*planes, kernel_size=1, bias=False)
+        self.conv3 = conv_layer(planes, self.expansion*planes, kernel_size=1, bias=False, groups=num_groups)
         self.bn3 = nn.BatchNorm2d(self.expansion*planes)
 
         self.shortcut = nn.Sequential()
@@ -78,7 +78,7 @@ class Bottleneck(nn.Module):
 
 
 class SparseResNetV(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10, sparsification='none', name='SparseResNetV'):
+    def __init__(self, block, num_blocks, num_classes=10, sparsification='none', num_groups=1, name='SparseResNetV'):
         '''Constructor for the SparseResNetV class.
 
         Args:
@@ -111,19 +111,19 @@ class SparseResNetV(nn.Module):
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
 
-        self.layer1 = self._make_layer(block, 64, num_blocks[0], 1, conv_layer)
-        self.layer2 = self._make_layer(block, 128, num_blocks[1], 2, conv_layer)
-        self.layer3 = self._make_layer(block, 256, num_blocks[2], 2, conv_layer)
-        self.layer4 = self._make_layer(block, 512, num_blocks[3], 2, conv_layer)
+        self.layer1 = self._make_layer(block, 64, num_blocks[0], 1, conv_layer, num_groups=num_groups)
+        self.layer2 = self._make_layer(block, 128, num_blocks[1], 2, conv_layer, num_groups=num_groups)
+        self.layer3 = self._make_layer(block, 256, num_blocks[2], 2, conv_layer, num_groups=num_groups)
+        self.layer4 = self._make_layer(block, 512, num_blocks[3], 2, conv_layer, num_groups=num_groups)
 
         self.linear = nn.Linear(512 * block.expansion, num_classes)
 
 
-    def _make_layer(self, block, planes, num_blocks, stride, conv_layer):
+    def _make_layer(self, block, planes, num_blocks, stride, conv_layer, num_groups=1):
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
         for stride in strides:
-            layers.append(block(self.in_planes, planes, conv_layer, stride=stride))
+            layers.append(block(self.in_planes, planes, conv_layer, stride=stride, num_groups=num_groups))
             self.in_planes = planes * block.expansion
         
         return nn.Sequential(*layers)
@@ -155,7 +155,7 @@ PARAM_DICT = {
 }
 
 
-def create_resnet(arch: str, sparsification='none', num_groups=0, name=None):
+def create_resnet(arch: str, sparsification='none', num_groups=1, name=None):
     """Creates an instance of the class SparseResNetV with the specified parameters.
 
     Args:
@@ -163,7 +163,7 @@ def create_resnet(arch: str, sparsification='none', num_groups=0, name=None):
             Legal values are [ '18', '34', '50', '101', '152' ], for ResNet-18, ResNet-34, ResNet-50, ResNet-101, ResNet-152 respectively.
         sparsification: str. The sparsification technique that should be used.
             'none': no sparsification, 'bibd': BIBD sparsification, 'random': random sparsification.
-        num_groups: int. The number of groups for vertical partitioning.
+        num_groups: int. The number of groups for vertical partitioning. Should be a positive integer.
         name: str. The name of the model.
     """
 
@@ -176,4 +176,5 @@ def create_resnet(arch: str, sparsification='none', num_groups=0, name=None):
         params[0],
         params[1],
         sparsification=sparsification,
+        num_groups=num_groups,
         name=params[2] if name is None else name)

@@ -26,7 +26,9 @@ from experiment import Experiment
 import pickle
 from datetime import datetime
 import sys
+from art import tprint
 
+tprint('IDDL', font='larry3d')
 
 # Use start time for the filename of the pickled file
 # date_time = datetime.now().strftime("%Y%m%d_%H%M%S")

@@ -10,6 +10,9 @@ import numpy as np
 from models.sparse_resnet_v import create_resnet
 # from models.resnet import ResNet18, ResNet34, ResNet50, ResNet101
 # from models.resnet_bibd import BResNet18, BResNet34, BResNet50, BResNet101
+from art import tprint
+
+tprint('IDDL', font='larry3d')
 
 
 MODEL_COUNT = 3 # The number of models of the same type. If there are 3 models of ResNet, then MODEL_COUNT = 3
@@ -37,20 +40,20 @@ else:
 
 print('Building the models...')
 model_list = []
-model_list.append(create_resnet('18', name='ResNet-18'))
-print('ResNet18 added.')
-model_list.append(create_resnet('34', name='ResNet-34'))
-print('ResNet34 added.')
-model_list.append(create_resnet('50', name='ResNet-50'))
-print('ResNet50 added.')
+model_list.append(create_resnet('18', name='ResNet-18').to(device))
+print('ResNet-18 added.')
+model_list.append(create_resnet('34', name='ResNet-34').to(device))
+print('ResNet-34 added.')
+model_list.append(create_resnet('50', name='ResNet-50').to(device))
+print('ResNet-50 added.')
 # model_list.append(ResNet101().to(device))
 # print('ResNet101 added.')
-model_list.append(create_resnet('18', sparsification='bibd', name='B-ResNet-18'))
-print('BResNet18 added.')
-model_list.append(create_resnet('34', sparsification='bibd', name='B-ResNet-34'))
-print('BResNet34 added.')
-model_list.append(create_resnet('50', sparsification='bibd', name='B-ResNet-50'))
-print('BResNet50 added.')
+model_list.append(create_resnet('18', sparsification='bibd', name='B-ResNet-18').to(device))
+print('B-ResNet-18 added.')
+model_list.append(create_resnet('34', sparsification='bibd', name='B-ResNet-34').to(device))
+print('B-ResNet-34 added.')
+model_list.append(create_resnet('50', sparsification='bibd', name='B-ResNet-50').to(device))
+print('B-ResNet-50 added.')
 # model_list.append(BResNet101().to(device))
 # print('BResNet101 added.')
 print('All models built and added to the list.')

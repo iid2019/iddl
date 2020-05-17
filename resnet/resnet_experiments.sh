@@ -1,5 +1,5 @@
 BEGIN=$1
-GPU=3 # The GPU index
+GPU=0 # The GPU index
 
 for model in ResNet-18 ResNet-34 ResNet-50 B-ResNet-18 B-ResNet-34 B-ResNet-50 R-ResNet-18 R-ResNet-34 R-ResNet-50
 do

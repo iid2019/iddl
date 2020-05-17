@@ -8,8 +8,6 @@ sys.path.append('../bibd')
 from bibd_layer import BibdLinear, RandomSparseLinear, generate_fake_bibd_mask, BibdConv2d, RandomSparseConv2d, bibd_sparsity
 import numpy as np
 from models.sparse_resnet_v import create_resnet
-# from models.resnet import ResNet18, ResNet34, ResNet50, ResNet101
-# from models.resnet_bibd import BResNet18, BResNet34, BResNet50, BResNet101
 from art import tprint
 
 tprint('IDDL', font='larry3d')
@@ -20,7 +18,7 @@ SELECTED_INDEX_LIST = [0, 1, 2]
 MODEL_INDEX_LIST = [0, 1, 2]
 
 # Load the name and accuracy array
-TIME = '20200513_062758'
+TIME = '20200516_072746'
 accuracy_filename = 'accuracy_array_{}.pkl'.format(TIME)
 accuracy_array = pickle.load(open(accuracy_filename, 'rb'))
 print('accuracy_array:')
@@ -29,7 +27,7 @@ accuracy_ndarray = accuracy_array.reshape((3, MODEL_COUNT))
 name_filename = 'model_name_array_{}.pkl'.format(TIME)
 name_array = pickle.load(open(name_filename, 'rb'))
 
-gpu_index = 0
+gpu_index = 2
 if torch.cuda.is_available():
     device = torch.device("cuda:{}".format(gpu_index))
     print('CUDA available. PyTorch version:', torch.__version__, ' Device:', device)

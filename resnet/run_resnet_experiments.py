@@ -13,12 +13,6 @@ import os
 from os import path
 import argparse
 
-from utils import progress_bar
-from utils import format_time
-from models.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
-from models.r_resnet import RResNet18, RResNet34, RResNet50, RResNet101, RResNet152
-from models.resnet_bibd import BResNet18, BResNet34, BResNet50, BResNet101, BResNet152
-
 import time
 import numpy as np
 
@@ -26,7 +20,10 @@ from experiment import Experiment
 import pickle
 from datetime import datetime
 import sys
+from art import tprint
+from models.sparse_resnet_v import create_resnet
 
+tprint('IDDL', font='larry3d')
 
 # Use start time for the filename of the pickled file
 # date_time = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -41,18 +38,20 @@ print('    BATCH_SIZE: {:d}'.format(BATCH_SIZE))
 print('    N_EPOCH: {:d}'.format(N_EPOCH))
 
 
-# Dictionary for argument to model
-model_dict = {
-    'ResNet-18': ResNet18, 'ResNet-34': ResNet34, 'ResNet-50': ResNet50,
-    'B-ResNet-18': BResNet18, 'B-ResNet-34': BResNet34, 'B-ResNet-50': BResNet50,
-    'R-ResNet-18': RResNet18, 'R-ResNet-34': RResNet34, 'R-ResNet-50': RResNet50,
+# Dictionary for model_name to creation parameters
+# Keys: str. The name of the model
+# Values: tuple. (arch, sparsification, name)
+model_param_dict = {
+    'ResNet-18': ('18', 'none', 'ResNet-18'), 'ResNet-34': ('34', 'none', 'ResNet-34'), 'ResNet-50': ('50', 'none', 'ResNet-50'),
+    'B-ResNet-18': ('18', 'bibd', 'B-ResNet-18'), 'B-ResNet-34': ('34', 'bibd', 'B-ResNet-34'), 'B-ResNet-50': ('50', 'bibd', 'B-ResNet-50'),
+    'R-ResNet-18': ('18', 'random', 'R-ResNet-18'), 'R-ResNet-34': ('34', 'random', 'R-ResNet-34'), 'R-ResNet-50': ('50', 'random', 'R-ResNet-50'),
 }
 
 
 # For parsing command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-m', '--model', type=str, help='The only one model you want to run.')
-parser.add_argument('-n', '--name', type=str, help='The name of the pickled files, which will be model_name_array_{name}.pkl accuracy_array_{name}.pkl')
+parser.add_argument('-n', '--name', type=str, help='The name of the pickled files, which will be model_name_array_{name}.pkl, accuracy_array_{name}.pkl')
 parser.add_argument('-g', '--gpu', type=int, default=0, help='The GPU index the program will run on. Starting from 0.')
 args = parser.parse_args()
 model_name = args.model
@@ -85,28 +84,9 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True
 testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False, num_workers=2)
 
 experiment = Experiment(n_epoch=N_EPOCH, gpu_index=gpu_index)
-experiment.run_model(model_dict[model_name]().to(device), trainloader, testloader)
-
-# # ResNet models
-# experiment.run_model(ResNet18().to(device), trainloader, testloader)
-# experiment.run_model(ResNet34().to(device), trainloader, testloader)
-# experiment.run_model(ResNet50().to(device), trainloader, testloader)
-
-# # B-ResNet models
-# experiment.run_model(BResNet18().to(device), trainloader, testloader)
-# experiment.run_model(BResNet34().to(device), trainloader, testloader)
-# experiment.run_model(BResNet50().to(device), trainloader, testloader)
-
-# # R-ResNet models
-# experiment.run_model(RResNet18().to(device), trainloader, testloader)
-# experiment.run_model(RResNet34().to(device), trainloader, testloader)
-# experiment.run_model(RResNet50().to(device), trainloader, testloader)
-
-
-# Save all the experiment data
-# filename = 'resnet_experiments_{}.pkl'.format(date_time)
-# pickle.dump(experiment, open(filename, "wb"))
-# print('The Experiment instance experiment dumped to the file: {}'.format(filename))
+params = model_param_dict[model_name]
+model = create_resnet(arch=params[0], sparsification=params[1], name=params[2]).to(device)
+experiment.run_model(model, trainloader, testloader)
 
 # Persist the test accuracy
 model_filename = 'model_name_array_{}.pkl'.format(pickle_name)

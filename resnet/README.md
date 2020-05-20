@@ -10,15 +10,6 @@ The `reults` folder includes the records of the experiments we ran.
 
 FYI. EE = Early Exit, Ens = Ensemble, GC = Group Convolution.
 
-## R-ResNet-18 on CIFAR-10
+## SparseResNetV
 
-**Run the expreiment**
-
-```shell
-$ conda activate iddl_env # Make sure that you are using the correct conda environment
-$ ./run_rresnet_cifar10.sh
-```
-
-**Output**
-- Log file: `./log/rresnet_cifar10_${BEGIN}.log`
-- Figures: `./fig_loss_rresnet_cifar10.eps` and `./fig_acc_rresnet_cifar10.eps`
+The `SparseResNetV` class provides a convenient and consistent method of building sparse ResNet models with vertical partioning.

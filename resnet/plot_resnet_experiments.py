@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 sys.path.append('../bibd')
 from bibd_layer import BibdLinear, RandomSparseLinear, generate_fake_bibd_mask, BibdConv2d, RandomSparseConv2d, bibd_sparsity
 import numpy as np
-from models.resnet import ResNet18, ResNet34, ResNet50, ResNet101
-from models.resnet_bibd import BResNet18, BResNet34, BResNet50, BResNet101
+from models.sparse_resnet_v import create_resnet
+from art import tprint
+
+tprint('IDDL', font='larry3d')
 
 
 MODEL_COUNT = 3 # The number of models of the same type. If there are 3 models of ResNet, then MODEL_COUNT = 3
@@ -16,7 +18,7 @@ SELECTED_INDEX_LIST = [0, 1, 2]
 MODEL_INDEX_LIST = [0, 1, 2]
 
 # Load the name and accuracy array
-TIME = '20200513_062758'
+TIME = '20200516_072746'
 accuracy_filename = 'accuracy_array_{}.pkl'.format(TIME)
 accuracy_array = pickle.load(open(accuracy_filename, 'rb'))
 print('accuracy_array:')
@@ -25,7 +27,7 @@ accuracy_ndarray = accuracy_array.reshape((3, MODEL_COUNT))
 name_filename = 'model_name_array_{}.pkl'.format(TIME)
 name_array = pickle.load(open(name_filename, 'rb'))
 
-gpu_index = 0
+gpu_index = 2
 if torch.cuda.is_available():
     device = torch.device("cuda:{}".format(gpu_index))
     print('CUDA available. PyTorch version:', torch.__version__, ' Device:', device)
@@ -36,20 +38,20 @@ else:
 
 print('Building the models...')
 model_list = []
-model_list.append(ResNet18().to(device))
-print('ResNet18 added.')
-model_list.append(ResNet34().to(device))
-print('ResNet34 added.')
-model_list.append(ResNet50().to(device))
-print('ResNet50 added.')
+model_list.append(create_resnet('18', name='ResNet-18').to(device))
+print('ResNet-18 added.')
+model_list.append(create_resnet('34', name='ResNet-34').to(device))
+print('ResNet-34 added.')
+model_list.append(create_resnet('50', name='ResNet-50').to(device))
+print('ResNet-50 added.')
 # model_list.append(ResNet101().to(device))
 # print('ResNet101 added.')
-model_list.append(BResNet18().to(device))
-print('BResNet18 added.')
-model_list.append(BResNet34().to(device))
-print('BResNet34 added.')
-model_list.append(BResNet50().to(device))
-print('BResNet50 added.')
+model_list.append(create_resnet('18', sparsification='bibd', name='B-ResNet-18').to(device))
+print('B-ResNet-18 added.')
+model_list.append(create_resnet('34', sparsification='bibd', name='B-ResNet-34').to(device))
+print('B-ResNet-34 added.')
+model_list.append(create_resnet('50', sparsification='bibd', name='B-ResNet-50').to(device))
+print('B-ResNet-50 added.')
 # model_list.append(BResNet101().to(device))
 # print('BResNet101 added.')
 print('All models built and added to the list.')

@@ -208,7 +208,7 @@ class execute2DConvolution(torch.nn.Module):
 
 class BibdConv2d(torch.nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size,
-                 stride=1, padding=0, inDil=1, groups=1):
+                 stride=1, padding=0, inDil=1, groups=1, bias=False):
         super(BibdConv2d, self).__init__()
         # Initialize all parameters that the convolution function needs to know
         self.kernel_size = kernel_size
@@ -220,6 +220,7 @@ class BibdConv2d(torch.nn.Module):
         self.conDil = inDil
         self.conTrans = False
         self.conGroups = groups
+        self.bias = bias # TODO: handle the situation where this value is true.
 
         n = kernel_size * kernel_size * out_channels
         # initialize the weights and the bias as well as the
@@ -242,7 +243,7 @@ class BibdConv2d(torch.nn.Module):
 
 
 class RandomSparseConv2d(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, inDil=1, groups=1):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, inDil=1, groups=1, bias=False):
         super(RandomSparseConv2d, self).__init__()
         # Initialize all parameters that the convolution function needs to know
         self.kernel_size = kernel_size
@@ -254,6 +255,7 @@ class RandomSparseConv2d(torch.nn.Module):
         self.conDil = inDil
         self.conTrans = False
         self.conGroups = groups
+        self.bias = bias # TODO: handle the situation where this value is true.
 
         n = kernel_size * kernel_size * out_channels
         # initialize the weights and the bias as well as the

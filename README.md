@@ -119,13 +119,47 @@ $ python plot_mlp_experiments.py
 | R-MLP-3-3 | 1680 |  | 0.8837 |
 | R-MLP-3-4 | 2324 |  | 0.8831 |
 
-![](./mlp/fig_mlp_experiments.png)
+<img src="./mlp/fig_mlp_experiments.png" style="width:300px;">
 
-![](./mlp/fig_mlp_experiments_sparse_only.png)
+<img src="./mlp/fig_mlp_experiments_sparse_only.png" style="width:300px;">
 
 #### 5.1.2 ResNet based models
 
-TODO: Add the instructions
+**Run the experiments**
+
+```shell
+$ conda activate iddl_env
+$ cd resnet
+$ bash run_resnet_experiments.sh
+```
+
+- Log file: `./resnet/log/resnet_experiments_${BEGIN}.log`
+- `./resnet/accuracy_array_{BEGIN}.pkl`: The pickled file of the array of test accuracy of type `numpy.array`.
+- `./resnet/model_name_array_{BEGIN}.pkl`: The pickled file of the array of model names of type `numpy.array`.
+
+**Plot the results**
+
+```shell
+$ conda activate iddl_env
+$ cd resnet
+$ python plot_resnet_experiments.py
+```
+
+- `./resnet/fig_resnet_experiments.eps`, `./resnet/fig_resnet_experiments.png`
+- `./resnet/fig_resnet_experiments_sparse_only.eps`, `./resnet/fig_resnet_experiments_sparse_only.png`: Only include the legends of sparse models: B-ResNet and R-ResNet.
+
+**Results**
+
+
+|  | *-ResNet-18 | *-ResNet-34 | *-ResNet-50 |
+|---|---|---|---|
+| **No sparsification** | 556.65 | 1161.45 | 1304.69 |
+| **BIBD sparsification** | 54.71 | 99.70 | 205.03 |
+| **Random sparsification** | 54.71 | 99.70 | 205.03 |
+
+<img src="./resnet/fig_resnet_experiments.png" style="width:300px;">
+
+<img src="./resnet/fig_resnet_experiments_sparse_only.png" style="width:300px;">
 
 ## 6. Get involved
 

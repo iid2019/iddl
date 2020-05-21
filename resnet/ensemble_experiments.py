@@ -18,13 +18,34 @@ import sys
 sys.path.append('../util')
 from time_utils import format_time
 import numpy as np
+from art import tprint
+import argparse
+from os import path
+import pickle
 
+
+tprint('IDDL', font='larry3d')
+
+# Parse the command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('-f', '--file', type=str, help='The filename of the pickle file.')
+parser.add_argument('-n', '--num', type=int, default=1, help='The number of base classifiers used in the enbemble.')
+args = parser.parse_args()
+FILENAME = args.file
+NUM_CLASSIFIER = args.num
 
 # The hyperparameters
 LEARNING_RATE = 0.01
-CLASSIFIER_NUM = 9
 N_EPOCH = 10
 BATCH_SIZE = 128
+BASE_CLASSIFIER_NAME = 'B-ResNet-V-4'
+print('Hyperparameters:')
+print('    NUM_CLASSIFIER: {}'.format(NUM_CLASSIFIER))
+print('    FILENAME: {}'.format(FILENAME))
+print('    LEARNING_RATE: {}'.format(LEARNING_RATE))
+print('    N_EPOCH: {}'.format(N_EPOCH))
+print('    BATCH_SIZE: {}'.format(BATCH_SIZE))
+print('    BASE_CLASSIFIER_NAME: {}'.format(BASE_CLASSIFIER_NAME))
 
 
 begin_time = time.time()
@@ -32,11 +53,11 @@ begin_time = time.time()
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-def ResNetBibdGcClassifier(dataloader, sample_weight_array, log_interval=200):
+def BResNetVClassifier(dataloader, sample_weight_array, log_interval=200):
     begin = time.time()
 
     # Create the net
-    net = ResNet_bibd_gc()
+    net = create_resnet('18', sparsification='bibd', num_groups=4, name=BASE_CLASSIFIER_NAME)
 
     # Set device of net
     net.to(device)
@@ -54,7 +75,7 @@ def ResNetBibdGcClassifier(dataloader, sample_weight_array, log_interval=200):
     net.eval()
 
     end = time.time()
-    print('    ResNetBibdGcClassifier trained in {}.'.format(format_time(end - begin)))
+    print('    {} trained in {}.'.format(net.name, format_time(end - begin)))
 
     return net
 
@@ -125,7 +146,7 @@ def train(model, optimizer, criterion, dataloader, sample_weight_array, epoch, l
         if (batch_index + 1) % log_interval == 0:
             sys.stdout.write('\r')
             sys.stdout.flush()
-            print('    Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            print('    Train epoch: {:3d} [{}/{} ({:.0f}%)] Loss: {:.6f}'.format(
                 epoch, (batch_index + 1) * len(data), len(dataloader.dataset),
                 100. * (batch_index + 1) / len(dataloader), loss.data.item()), end='')
 
@@ -157,8 +178,8 @@ train_dataloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE, 
 validation_dataloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=False)
 
 # Define and train the AdaBoostClassifier
-classifier = AdaBoostClassifier(ResNetBibdGcClassifier)
-classifier.train(train_dataloader, validation_dataloader, classifier_num=CLASSIFIER_NUM)
+classifier = AdaBoostClassifier(BResNetVClassifier, BASE_CLASSIFIER_NAME)
+classifier.train(train_dataloader, validation_dataloader, classifier_num=NUM_CLASSIFIER)
 
 transform_test = transforms.Compose([
     transforms.ToTensor(),
@@ -167,7 +188,23 @@ transform_test = transforms.Compose([
 test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
 test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False)
 
+# Test the base classifier
+print('Testing all the base classifiers...')
+for i in range(NUM_CLASSIFIER):
+    correct = 0
+    for batch_index, (data, target) in enumerate(test_dataloader):
+        # Copy data to GPU if needed
+        data = data.to(device)
+        target = target.to(device)
+
+        category = classifier.predict_using_base_classifier(i, data)
+        target_category = target.cpu().numpy().item()
+        correct += 1 if category == target_category else 0
+    accuracy = correct / len(test_dataloader.dataset)
+    print('Test dataset: {} #{} accuracy: {}/{} ({:.2f}%)'.format(classifier.base_classifier_name, i + 1, correct, len(test_dataloader.dataset), accuracy * 100.0))
+
 # Test the AdaBoostClassifier
+print('Testing the AdaBoostClassifier...')
 correct = 0
 for batch_index, (data, target) in enumerate(test_dataloader):
     # Copy data to GPU if needed
@@ -180,19 +217,17 @@ for batch_index, (data, target) in enumerate(test_dataloader):
 accuracy = correct / len(test_dataloader.dataset)
 print('\nTest dataset: AdaBoostClassifier accuracy: {}/{} ({:.2f}%)\n'.format(correct, len(test_dataloader.dataset), accuracy * 100.0))
 
-# Test the base classifier
-for i in range(CLASSIFIER_NUM):
-    correct = 0
-    for batch_index, (data, target) in enumerate(test_dataloader):
-        # Copy data to GPU if needed
-        data = data.to(device)
-        target = target.to(device)
-
-        category = classifier.predict_using_base_classifier(i, data)
-        target_category = target.cpu().numpy().item()
-        correct += 1 if category == target_category else 0
-    accuracy = correct / len(test_dataloader.dataset)
-    print('Test dataset: Base ResNetBibdGcClassifier #{} accuracy: {}/{} ({:.2f}%)'.format(i + 1, correct, len(test_dataloader.dataset), accuracy * 100.0))
+# Persiste the result
+if path.exists(FILENAME):
+    result_dict = pickle.load(open(FILENAME, "rb"))
+else:
+    result_dict = {}
+result_dict[NUM_CLASSIFIER] = accuracy
+pickle.dump(result_dict, open(FILENAME, "wb"))
+print('result_dict:')
+for num_classifier in result_dict:
+    print('    {:d}: {:.4f}'.format(num_classifier, result_dict[num_classifier]))
+print('result_dict has been pickled to file \'{}\'.'.format(FILENAME))
 
 end_time = time.time()
 print('Total time usage: {}'.format(format_time(end_time - begin_time)))

@@ -8,18 +8,22 @@ import numpy as np
 import operator
 import math
 import time
+import sys
+sys.path.append('../util')
 from time_utils import format_time
 
 
 class AdaBoostClassifier():
+    base_classifier_name = None
     __base_classifier = None
     __sample_weight_array = None
     __base_classifier_list = []
     __weight_list = []
 
 
-    def __init__(self, base_classifier):
+    def __init__(self, base_classifier, base_classifier_name=None):
         self.__base_classifier = base_classifier
+        self.base_classifier_name = base_classifier_name
 
         return
 
@@ -30,7 +34,7 @@ class AdaBoostClassifier():
         self.__sample_weight_array = np.repeat(1/n, n)
 
         for i in range(classifier_num):
-            print('Training classifier {}...'.format(i + 1))
+            print('Training {} #{}...'.format(self.base_classifier_name, i + 1))
 
             # Train the classifier
             begin_time = time.time()
@@ -40,6 +44,7 @@ class AdaBoostClassifier():
             self.__base_classifier_list.append(trained_classifier)
 
             # Calculate the error
+            print('Calculating the error of this base classifier...')
             error = 0
             for index, (x, y) in enumerate(validation_dataloader):
                 # TODO: The logic here should stay outside of this class
@@ -58,7 +63,8 @@ class AdaBoostClassifier():
             print('    Weight: {}'.format(weight))
             self.__weight_list.append(weight)
             
-            # Update the weights
+            # Update the 
+            print("Updating the weights...")
             for index, (x, y) in enumerate(validation_dataloader):
                 # print(y)
                 # TODO: The logic here should stay outside of this class

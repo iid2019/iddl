@@ -6,11 +6,13 @@ Balanced Incomplete Block Design (BIBD) is the core technique in this project.
 
 [bibd_visualization.ipynb](https://nbviewer.jupyter.org/github/iid2019/iddl/blob/master/bibd/bibd_visualization.ipynb)
 
-### 1.1 BIBD convolution
+### 1.1 BIBD linear layers
 
-Depthwise sparsification
+### 1.2 BIBD convolutional layers
 
-![BIBD convolution](./figure/bibd_convolution.png)
+Depthwise (channel) sparsification
+
+<img src="./figure/bibd_convolution.png" width="400" alt="BIBD convolution" />
 
 ## 2. MLP experiments
 

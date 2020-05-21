@@ -119,9 +119,9 @@ $ python plot_mlp_experiments.py
 | R-MLP-3-3 | 1680 |  | 0.8837 |
 | R-MLP-3-4 | 2324 |  | 0.8831 |
 
-<img src="./mlp/fig_mlp_experiments.png" style="width:300px;">
+<img src="./mlp/fig_mlp_experiments.png" width="400" />
 
-<img src="./mlp/fig_mlp_experiments_sparse_only.png" style="width:300px;">
+<img src="./mlp/fig_mlp_experiments_sparse_only.png" width="400" />
 
 #### 5.1.2 ResNet based models
 
@@ -157,9 +157,47 @@ $ python plot_resnet_experiments.py
 | **BIBD sparsification** | 54.71 | 99.70 | 205.03 |
 | **Random sparsification** | 54.71 | 99.70 | 205.03 |
 
-<img src="./resnet/fig_resnet_experiments.png" style="width:300px;">
+<img src="./resnet/fig_resnet_experiments.png" width="400" />
 
-<img src="./resnet/fig_resnet_experiments_sparse_only.png" style="width:300px;">
+<img src="./resnet/fig_resnet_experiments_sparse_only.png" width="400" />
+
+### 5.2 Vertical partitioning
+
+Implemented using grouped convolution.
+
+### 5.3 Horizontal partionining
+
+Early exiting.
+
+### 5.4 Ensemble learning
+
+**Run the experiments**
+
+```shell
+$ cd resnet
+$ conda activate iddl_env
+$ bash ./run_ensemble_experiments.sh 1
+$ bash ./run_ensemble_experiments.sh 2
+```
+
+- Log file: `./resnet/log/ensemble_experiments_${INDEX}_${BEGIN}.log`
+- PID file: `log/ensemble_experiments_${INDEX}_${BEGIN}.pid`
+- Dumped file: `ensemble_result_${INDEX}_${BEGIN}.pkl`
+
+**Plot the results**
+
+```shell
+$ cd resnet
+$ conda activate iddl_env
+$ python plot_ensemble_experiments.py
+```
+
+- `./resnet/fig_ensemble_experiments.png`, `./resnet/fig_ensemble_experiments.eps`
+- `./resnet/fig_ensemble_experiments_improved.png`, `./resnet/fig_ensemble_experiments_improved.eps`
+
+<img src="./resnet/fig_ensemble_experiments.png" width="400" />
+
+<img src="./resnet/fig_ensemble_experiments_improved.png" width="400" />
 
 ## 6. Get involved
 

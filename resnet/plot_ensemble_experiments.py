@@ -4,6 +4,7 @@ import pickle
 import sys
 import copy
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 sys.path.append('../bibd')
 from bibd_layer import BibdLinear, RandomSparseLinear, generate_fake_bibd_mask, BibdConv2d, RandomSparseConv2d, bibd_sparsity
 import numpy as np
@@ -40,10 +41,13 @@ shape_list = ['-o', '-^', '-s']
 fig, ax = plt.subplots(figsize=(10,6), dpi=200)
 plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
 plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
+ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
+ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+plt.xticks(classifier_num_list)
 ax.plot(classifier_num_list, accuracy_list, shape_list[0], color=color_list[0])
 # ax.legend(fontsize=20)
 # ax.set_title(r'# of classifiers v.s. accuracy', fontsize=24)
-ax.set_xlabel(r'# of classifiers', fontsize=20)
+ax.set_xlabel(r'# of base classifiers', fontsize=20)
 ax.set_ylabel(r'Accuracy', fontsize=20)
 
 fig.savefig('fig_ensemble_experiments.png', format='png', pad_inches=0)
@@ -56,10 +60,13 @@ for accuracy in accuracy_list[1:]:
 fig, ax = plt.subplots(figsize=(10,6), dpi=200)
 plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
 plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
-ax.plot(classifier_num_list[1:], improved_accuracy_list, shape_list[0], color=color_list[0])
+ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
+ax.yaxis.set_major_formatter(FormatStrFormatter('%.4f'))
+plt.xticks(classifier_num_list[1:])
+ax.plot(classifier_num_list[1:], improved_accuracy_list, shape_list[0], color=color_list[2])
 # ax.legend(fontsize=20)
 # ax.set_title(r'# of classifiers v.s. improved accuracy', fontsize=24)
-ax.set_xlabel(r'# of classifiers', fontsize=20)
+ax.set_xlabel(r'# of base classifiers', fontsize=20)
 ax.set_ylabel(r'Improved accuracy', fontsize=20)
 
 fig.savefig('fig_ensemble_experiments_improved.png', format='png', pad_inches=0)

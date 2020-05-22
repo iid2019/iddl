@@ -15,14 +15,7 @@ from models import *
 from utils import progress_bar
 from utils import format_time
 from models.resnet_bibd import *
-from models.resnet_gc import *
-from models.resnet_bibd_gc import *
 from models.resnet_exit import *
-from models.resnet_exit_BIBD import *
-from models.resnet_exit_gc_4 import *
-from models.resnet_ENS_EE import *
-from models.resnet_ENS_BIBD_EE import *
-from models.resnet_BIBD_EE_GC import *
 
 import time
 import numpy as np
@@ -74,7 +67,7 @@ print('==> Building model..')
 # net = ResNet_3exit()
 net = ResNet_EE()
 net = net.to(device)
-model_name = 'BIBD_GC_EE'
+model_name = 'EE'
 
 print(net)
 

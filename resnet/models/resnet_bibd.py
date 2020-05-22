@@ -18,7 +18,7 @@ class BBasicBlock(nn.Module):
 
     def __init__(self, in_planes, planes, stride=1):
         super(BBasicBlock, self).__init__()
-        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1)
+        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, groups = 4)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm2d(planes)

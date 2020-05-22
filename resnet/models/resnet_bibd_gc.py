@@ -7,11 +7,10 @@ Reference:
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-import time
 import sys
 sys.path.append('../bibd')
 from bibd_layer import BibdConv2d
+
 
 class BBasicBlock(nn.Module):
     expansion = 1
@@ -19,9 +18,9 @@ class BBasicBlock(nn.Module):
 
     def __init__(self, in_planes, planes, stride=1):
         super(BBasicBlock, self).__init__()
-        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, groups=2)
+        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1, groups=2)
+        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
@@ -40,17 +39,17 @@ class BBasicBlock(nn.Module):
         return out
 
 
-class Bottleneck(nn.Module):
+class BBottleneck(nn.Module):
     expansion = 4
 
 
     def __init__(self, in_planes, planes, stride=1):
-        super(Bottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
+        super(BBottleneck, self).__init__()
+        self.conv1 = BibdConv2d(in_planes, planes, kernel_size=1)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv2 = BibdConv2d(planes, planes, kernel_size=3, stride=stride, padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(planes, self.expansion*planes, kernel_size=1, bias=False)
+        self.conv3 = BibdConv2d(planes, self.expansion*planes, kernel_size=1)
         self.bn3 = nn.BatchNorm2d(self.expansion*planes)
 
         self.shortcut = nn.Sequential()
@@ -71,8 +70,11 @@ class Bottleneck(nn.Module):
 
 
 class BResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10):
+    def __init__(self, block, num_blocks, num_classes=10, name='B-ResNet'):
         super(BResNet, self).__init__()
+
+        self.name = name
+
         self.in_planes = 64
 
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
@@ -98,7 +100,6 @@ class BResNet(nn.Module):
 
 
     def forward(self, x):
-        s_timestamp = time.time()
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
@@ -112,19 +113,24 @@ class BResNet(nn.Module):
         out = F.avg_pool2d(out, 4)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
-        s0_timestamp = time.time()
-        return np.array([out, s0_timestamp - s_timestamp])
+        return out
 
 
-def ResNet_bibd_gc():
-    return BResNet(BBasicBlock, [2,2,2,2])
+def BResNet18(name='B-ResNet-18'):
+    return BResNet(BBasicBlock, [2, 2, 2, 2], name=name)
 
-def ResNet_34_bibd_gc_2():
-    return BResNet(BBasicBlock, [3,4,6,3])
 
-def test():
-    net = BResNet18()
-    y = net(torch.randn(1,3,32,32))
-    print(y.size())
+def BResNet34(name='B-ResNet-34'):
+    return BResNet(BBasicBlock, [3, 4, 6, 3], name=name)
 
-# test()
+
+def BResNet50(name='B-ResNet-50'):
+    return BResNet(BBottleneck, [3, 4, 6, 3], name=name)
+
+
+def BResNet101(name='B-ResNet-101'):
+    return BResNet(BBottleneck, [3, 4, 23, 3], name=name)
+
+
+def BResNet152(name='B-ResNet-152'):
+    return BResNet(BBottleneck, [3, 8, 36, 3], name=name)

@@ -9,6 +9,6 @@ INDEX=$1
 
 mkdir -p log
 touch log/resnet_experiments_${BEGIN}.log
-nohup bash ensemble_experiments.sh ${BEGIN} ${INDEX} > log/ensemble_experiments_${INDEX}_${BEGIN}.log 2>&1 & disown
+stdbuf -i0 -o0 -e0 nohup bash ensemble_experiments.sh ${BEGIN} ${INDEX} > log/ensemble_experiments_${INDEX}_${BEGIN}.log 2>&1 & disown
 echo $! > log/ensemble_experiments_${INDEX}_${BEGIN}_pid.txt
 tail -f log/ensemble_experiments_${INDEX}_${BEGIN}.log

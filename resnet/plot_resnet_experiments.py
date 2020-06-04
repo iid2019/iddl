@@ -120,7 +120,7 @@ plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
 for i in MODEL_INDEX_LIST:
     ax.plot(ops_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i])
 ax.legend(fontsize=20)
-ax.set_title(r'Accuracy v.s. FLOPs', fontsize=24)
+# ax.set_title(r'Accuracy v.s. FLOPs', fontsize=24)
 ax.set_xlabel(r'FLOPs (M)', fontsize=20)
 ax.set_ylabel(r'Accuracy', fontsize=20)
 
@@ -135,7 +135,7 @@ plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
 for i in MODEL_INDEX_LIST:
     ax.plot(ops_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i])
 ax.legend(fontsize=20)
-ax.set_title(r'Accuracy v.s. FLOPs', fontsize=24)
+# ax.set_title(r'Accuracy v.s. FLOPs', fontsize=24)
 ax.set_xlabel(r'FLOPs (M)', fontsize=20)
 ax.set_ylabel(r'Accuracy', fontsize=20)
 

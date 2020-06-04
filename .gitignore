@@ -128,3 +128,10 @@ log/
 # Python pickled data files
 *.p
 *.pkl
+
+# The final experiments results
+!mlp/mlp_experiments_20200507_152923.p
+!resnet/accuracy_array_20200516_072746.pkl
+!resnet/model_name_array_20200516_072746.pkl
+!resnet/ensemble_result_1_20200521_142555.pkl
+!resnet/ensemble_result_2_20200521_142607.pkl

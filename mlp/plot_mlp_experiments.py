@@ -71,7 +71,7 @@ for index, layers in enumerate(layers_list):
 
 print(numberOfParam_ndarray)
 
-color_list = ['#22a7f0', '#cf000f', '#03a678']
+color_list = ['#7fc97f', '#beaed4', '#fdc086']
 shape_list = ['-o', '-^', '-s']
 
 # Plot all models
@@ -81,7 +81,7 @@ plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
 for i in MODEL_INDEX_LIST:
     ax.plot(numberOfParam_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i])
 ax.legend(fontsize=20)
-ax.set_title(r'Accuracy v.s. # of parameters', fontsize=24)
+# ax.set_title(r'Accuracy v.s. # of parameters', fontsize=24)
 ax.set_xlabel(r'# of parameters', fontsize=20)
 ax.set_ylabel(r'Accuracy', fontsize=20)
 
@@ -96,7 +96,7 @@ plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
 for i in MODEL_INDEX_LIST:
     ax.plot(numberOfParam_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i])
 ax.legend(fontsize=20)
-ax.set_title(r'Accuracy v.s. # of parameters', fontsize=24)
+# ax.set_title(r'Accuracy v.s. # of parameters', fontsize=24)
 ax.set_xlabel(r'# of parameters', fontsize=20)
 ax.set_ylabel(r'Accuracy', fontsize=20)
 

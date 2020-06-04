@@ -71,7 +71,7 @@ for index, layers in enumerate(layers_list):
 
 print(numberOfParam_ndarray)
 
-color_list = ['#7fc97f', '#beaed4', '#fdc086']
+color_list = ['#7fc97f', '#beaed4', '#386cb0']
 shape_list = ['-o', '-^', '-s']
 
 # Plot all models

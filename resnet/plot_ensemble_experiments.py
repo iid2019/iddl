@@ -34,7 +34,7 @@ for classifier_num, accuracy in ordered_total_dict.items():
     print('{:d}, {:.4f}'.format(classifier_num, accuracy))
 
 
-color_list = ['#22a7f0', '#cf000f', '#03a678']
+color_list = ['#7fc97f', '#beaed4', '#386cb0']
 shape_list = ['-o', '-^', '-s']
 
 # Plot

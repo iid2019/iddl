@@ -27,7 +27,7 @@ accuracy_ndarray = accuracy_array.reshape((3, MODEL_COUNT))
 name_filename = 'model_name_array_{}.pkl'.format(TIME)
 name_array = pickle.load(open(name_filename, 'rb'))
 
-gpu_index = 2
+gpu_index = 0
 if torch.cuda.is_available():
     device = torch.device("cuda:{}".format(gpu_index))
     print('CUDA available. PyTorch version:', torch.__version__, ' Device:', device)
@@ -110,7 +110,7 @@ print(accuracy_ndarray)
 print('ops_ndarray:')
 print(ops_ndarray)
 
-color_list = ['#22a7f0', '#cf000f', '#03a678']
+color_list = ['#7fc97f', '#beaed4', '#386cb0']
 shape_list = ['-o', '-^', '-s']
 
 # Plot all models

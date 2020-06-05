@@ -199,8 +199,6 @@ $ python plot_ensemble_experiments.py
 
 <img src="./resnet/fig_ensemble_experiments.png" width="400" />
 
-<img src="./resnet/fig_ensemble_experiments_improved.png" width="400" />
-
 ## 6. Get involved
 
 Please follow the instructions if you want to contribute to this repository: [contribution_guide.md](./contribution_guide.md)

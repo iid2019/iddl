@@ -17,6 +17,8 @@ MODEL_COUNT = 3 # The number of models of the same type. If there are 3 models o
 SELECTED_INDEX_LIST = [0, 1, 2]
 MODEL_INDEX_LIST = [0, 1, 2]
 
+MARKER_SIZE = 12.0
+
 # Load the name and accuracy array
 TIME = '20200516_072746'
 accuracy_filename = 'accuracy_array_{}.pkl'.format(TIME)
@@ -118,7 +120,7 @@ fig, ax = plt.subplots(figsize=(10,6), dpi=200)
 plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
 plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
 for i in MODEL_INDEX_LIST:
-    ax.plot(ops_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i])
+    ax.plot(ops_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i], markersize=MARKER_SIZE)
 ax.legend(fontsize=20)
 # ax.set_title(r'Accuracy v.s. FLOPs', fontsize=24)
 ax.set_xlabel(r'FLOPs (M)', fontsize=20)
@@ -133,7 +135,7 @@ fig, ax = plt.subplots(figsize=(10,6), dpi=200)
 plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
 plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
 for i in MODEL_INDEX_LIST:
-    ax.plot(ops_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i])
+    ax.plot(ops_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i], markersize=MARKER_SIZE)
 ax.legend(fontsize=20)
 # ax.set_title(r'Accuracy v.s. FLOPs', fontsize=24)
 ax.set_xlabel(r'FLOPs (M)', fontsize=20)

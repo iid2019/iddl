@@ -14,6 +14,8 @@ TOTAL_NUM = 4
 SELECTED_INDEX_LIST = [0, 1, 2, 3]
 MODEL_INDEX_LIST = [0, 1, 2]
 
+MARKER_SIZE = 12.0
+
 numberOfParam_ndarray = np.zeros((3, TOTAL_NUM), dtype=float)
 accuracy_ndarray = np.zeros((3, TOTAL_NUM), dtype=float)
 name_list = ['MLP', 'B-MLP', 'R-MLP']
@@ -79,7 +81,7 @@ fig, ax = plt.subplots(figsize=(10,6), dpi=200)
 plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
 plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
 for i in MODEL_INDEX_LIST:
-    ax.plot(numberOfParam_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i])
+    ax.plot(numberOfParam_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i], markersize=MARKER_SIZE)
 ax.legend(fontsize=20)
 # ax.set_title(r'Accuracy v.s. # of parameters', fontsize=24)
 ax.set_xlabel(r'# of parameters', fontsize=20)
@@ -94,7 +96,7 @@ fig, ax = plt.subplots(figsize=(10,6), dpi=200)
 plt.setp(ax.get_xticklabels(), fontsize=18, fontweight="normal")
 plt.setp(ax.get_yticklabels(), fontsize=18, fontweight="normal")
 for i in MODEL_INDEX_LIST:
-    ax.plot(numberOfParam_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i])
+    ax.plot(numberOfParam_ndarray[i][SELECTED_INDEX_LIST], accuracy_ndarray[i][SELECTED_INDEX_LIST], shape_list[i], color=color_list[i], label=name_list[i], markersize=MARKER_SIZE)
 ax.legend(fontsize=20)
 # ax.set_title(r'Accuracy v.s. # of parameters', fontsize=24)
 ax.set_xlabel(r'# of parameters', fontsize=20)

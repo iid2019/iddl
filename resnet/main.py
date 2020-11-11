@@ -1,4 +1,12 @@
-'''Train CIFAR10 with PyTorch.'''
+'''
+Copyright 2019 - 2020, Jianfeng Hou, houjf@shanghaitech.edu.cn
+
+All rights reserved.
+
+Train CIFAR10 with PyTorch.
+'''
+
+
 import torch
 import torch.nn as nn
 import torch.optim as optim

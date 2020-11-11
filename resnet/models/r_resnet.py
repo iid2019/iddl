@@ -1,6 +1,10 @@
 # -*- coding: UTF-8 -*-
 
 """
+Copyright 2019 - 2020, Jianfeng Hou, houjf@shanghaitech.edu.cn
+
+All rights reserved.
+
 R-ResNet: Random sparse ResNet.
 
 References:

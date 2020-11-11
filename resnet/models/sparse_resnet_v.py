@@ -1,6 +1,9 @@
-"""Sparse ResNet with vertical partitioning in PyTorch.
+"""
+Copyright 2019 - 2020, Jianfeng Hou, houjf@shanghaitech.edu.cn
 
-Author: Jianfeng Hou, houjf@shanghaitech.edu.cn
+All rights reserved.
+
+Sparse ResNet with vertical partitioning in PyTorch.
 
 The sparsification technique is applied to convolution layers.
 

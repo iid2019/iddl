@@ -206,3 +206,11 @@ Please follow the instructions if you want to contribute to this repository: [co
 ### 6.1 Style guide
 
 - [Google Python Style Guide](http://google.github.io/styleguide/pyguide.html)
+
+## Copyright
+
+```
+Copyright 2019 - 2020, Jianfeng Hou, houjf@shanghaitech.edu.cn
+
+All rights reserved.
+```

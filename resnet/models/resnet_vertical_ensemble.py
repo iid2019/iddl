@@ -1,4 +1,9 @@
-'''ResNet for CIFAR-10.
+'''
+Copyright 2019 - 2020, Jianfeng Hou, houjf@shanghaitech.edu.cn
+
+All rights reserved.
+
+ResNet for CIFAR-10.
 Reference: https://github.com/kuangliu/pytorch-cifar
 '''
 import torch

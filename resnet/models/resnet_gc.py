@@ -1,4 +1,9 @@
-'''ResNet in PyTorch.
+'''
+Copyright 2019 - 2020, Jianfeng Hou, houjf@shanghaitech.edu.cn
+
+All rights reserved.
+
+ResNet in PyTorch.
 
 For Pre-activation ResNet, see 'preact_resnet.py'.
 

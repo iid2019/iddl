@@ -1,4 +1,9 @@
-'''BResNet: ResNet with BIBD in PyTorch.
+'''
+Copyright 2019 - 2020, Jianfeng Hou, houjf@shanghaitech.edu.cn
+
+All rights reserved.
+
+BResNet: ResNet with BIBD in PyTorch.
 
 Reference:
 [1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun

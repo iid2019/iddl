@@ -1,4 +1,8 @@
 """
+Copyright 2019 - 2020, Jianfeng Hou, houjf@shanghaitech.edu.cn
+
+All rights reserved.
+
 Hyperparameters:
 - learning rate
 - number of training epoch for every single base classifier

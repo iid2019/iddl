@@ -1,4 +1,8 @@
 '''
+Copyright 2019 - 2020, Jianfeng Hou, houjf@shanghaitech.edu.cn
+
+All rights reserved.
+
 Classes associated with ensemble learning.
 
 Currently implemented:

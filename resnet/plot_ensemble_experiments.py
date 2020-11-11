@@ -1,3 +1,9 @@
+"""
+Copyright 2019 - 2020, Jianfeng Hou, houjf@shanghaitech.edu.cn
+
+All rights reserved.
+"""
+
 import torch
 from thop import profile
 import pickle
